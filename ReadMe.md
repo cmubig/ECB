@@ -8,18 +8,20 @@ This repository contains the implementation and evaluation framework for **ECB (
 
 ## 🎯 Project Overview
 
-ECB introduces a **dual-metric evaluation framework** that combines:
+ECB introduces a **comprehensive evaluation framework** that includes:
 
+- **Image Generation**: T2I (Text-to-Image) and I2I (Image-to-Image) pipelines for multiple models
 - **Cultural Metrics**: Cultural appropriateness, representation accuracy, and contextual sensitivity
 - **General Metrics**: Technical quality, prompt adherence, and perceptual fidelity
 
-### Key Contributions
+### Key Components
 
-1. **Structured Cultural Evaluation Framework**: Context-aware assessment using cultural knowledge bases
-2. **VLM-based Evaluation**: Vision-Language Models for cultural understanding
-3. **Model Comparison**: Audit of 5 generative models across 6 countries and 8 cultural categories
-4. **Human Survey Platform**: Web-based interface for collecting human evaluation data
-5. **Analysis Pipeline**: Statistical analysis and visualization tools
+1. **Multi-Model Image Generation**: T2I and I2I pipelines for 5 different generative models
+2. **Structured Cultural Evaluation**: Context-aware assessment using cultural knowledge bases
+3. **VLM-based Evaluation**: Vision-Language Models for cultural understanding
+4. **Model Comparison**: Audit across 6 countries and 8 cultural categories
+5. **Human Survey Platform**: Web-based interface for collecting human evaluation data
+6. **Analysis Pipeline**: Statistical analysis and visualization tools
 
 ## 📁 Repository Structure
 
@@ -49,7 +51,17 @@ ECB/
 │
 ├── 🏭 generator/                  # Image generation pipelines
 │   ├── T2I/                       # Text-to-Image generation
+│   │   ├── flux/                  # FLUX T2I implementation
+│   │   ├── hidream/               # HiDream T2I implementation
+│   │   ├── qwen/                  # Qwen-VL T2I implementation
+│   │   ├── nextstep/              # NextStep T2I implementation
+│   │   └── sd35/                  # Stable Diffusion 3.5 T2I
 │   └── I2I/                       # Image-to-Image editing
+│       ├── flux/                  # FLUX I2I implementation
+│       ├── hidream/               # HiDream I2I implementation
+│       ├── qwen/                  # Qwen-VL I2I implementation
+│       ├── nextstep/              # NextStep I2I implementation
+│       └── sd35/                  # Stable Diffusion 3.5 I2I
 │
 ├── 🌐 ecb-human-survey/           # Next.js web application
 │   ├── src/                       # React components and logic
@@ -83,7 +95,19 @@ pip install -r evaluation/cultural_metric/requirements.txt
 pip install -r evaluation/general_metric/requirements.txt
 ```
 
-### 1. Cultural Knowledge Base Setup
+### 1. Image Generation (Optional - if you want to generate new images)
+
+```bash
+# Text-to-Image generation
+cd generator/T2I/flux/
+python generate_t2i.py --prompts prompts.json --output ../../dataset/flux/base/
+
+# Image-to-Image editing  
+cd generator/I2I/flux/
+python generate_i2i.py --base-images ../../dataset/flux/base/ --edit-prompts edit_prompts.json --output ../../dataset/flux/edit_1/
+```
+
+### 2. Cultural Knowledge Base Setup
 
 ```bash
 cd evaluation/cultural_metric/
@@ -92,7 +116,7 @@ python build_cultural_index.py \
     --output-dir vector_store/
 ```
 
-### 2. Run Cultural Evaluation
+### 3. Run Cultural Evaluation
 
 ```bash
 python enhanced_cultural_metric_pipeline.py \
@@ -105,7 +129,7 @@ python enhanced_cultural_metric_pipeline.py \
     --max-samples 50
 ```
 
-### 3. Run General Metrics Evaluation
+### 4. Run General Metrics Evaluation
 
 ```bash
 cd evaluation/general_metric/
@@ -115,7 +139,7 @@ python multi_metric_evaluation.py \
     --output-csv results/flux_general_metrics.csv
 ```
 
-### 4. Generate Analysis Reports
+### 5. Generate Analysis Reports
 
 ```bash
 cd evaluation/analysis/
@@ -172,6 +196,33 @@ python multi_model_cultural_analysis.py  # Cross-model comparison
 - **Stable Diffusion 3.5**: Popular open-source model
 
 ## 🔧 Advanced Usage
+
+### Batch Generation Pipeline
+
+```bash
+# Generate images for all models and all cultural categories
+cd generator/
+python batch_generation.py \
+    --models flux hidream qwen nextstep sd35 \
+    --countries china india korea kenya nigeria usa \
+    --categories architecture art event fashion food landscape people wildlife \
+    --output-dir ../dataset/
+```
+
+### Custom Image Generation
+
+```python
+from generator.T2I.flux import FluxT2IGenerator
+from generator.I2I.flux import FluxI2IGenerator
+
+# T2I Generation
+t2i_gen = FluxT2IGenerator()
+image = t2i_gen.generate("Traditional Chinese architecture house, photorealistic")
+
+# I2I Editing
+i2i_gen = FluxI2IGenerator()
+edited_image = i2i_gen.edit(base_image, "Change to represent Korean architecture")
+```
 
 ### Custom Cultural Knowledge Integration
 
