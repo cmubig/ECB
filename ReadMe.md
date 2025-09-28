@@ -1,0 +1,269 @@
+# ECB: Exposing Cultural Blindspots 🌍
+## A Structured Audit of Generative Image Models
+
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+This repository contains the implementation and evaluation framework for **ECB (Exposing Cultural Blindspots)**, an audit methodology for assessing cultural representation and bias in generative image models.
+
+## 🎯 Project Overview
+
+ECB introduces a **dual-metric evaluation framework** that combines:
+
+- **Cultural Metrics**: Cultural appropriateness, representation accuracy, and contextual sensitivity
+- **General Metrics**: Technical quality, prompt adherence, and perceptual fidelity
+
+### Key Contributions
+
+1. **Structured Cultural Evaluation Framework**: Context-aware assessment using cultural knowledge bases
+2. **VLM-based Evaluation**: Vision-Language Models for cultural understanding
+3. **Model Comparison**: Audit of 5 generative models across 6 countries and 8 cultural categories
+4. **Human Survey Platform**: Web-based interface for collecting human evaluation data
+5. **Analysis Pipeline**: Statistical analysis and visualization tools
+
+## 📁 Repository Structure
+
+```
+ECB/
+├── 📊 dataset/                    # Generated images and metadata
+│   ├── flux/                      # FLUX model outputs
+│   ├── hidream/                   # HiDream model outputs  
+│   ├── qwen/                      # Qwen-VL model outputs
+│   ├── nextstep/                  # NextStep model outputs
+│   └── sd35/                      # Stable Diffusion 3.5 outputs
+│
+├── 🔬 evaluation/                 # Evaluation framework
+│   ├── cultural_metric/           # Cultural assessment pipeline
+│   │   ├── enhanced_cultural_metric_pipeline.py  # Main evaluation script
+│   │   ├── build_cultural_index.py              # Knowledge base builder
+│   │   └── vector_store/          # FAISS-based cultural knowledge index
+│   ├── general_metric/            # Technical quality assessment
+│   │   └── multi_metric_evaluation.py           # CLIP, FID, LPIPS metrics
+│   ├── analysis/                  # Statistical analysis and visualization
+│   │   ├── cultural_analysis.py   # Cultural metrics analysis
+│   │   ├── general_metrics_analysis.py          # Technical metrics analysis
+│   │   └── multi_model_*_analysis.py            # Cross-model comparisons
+│   └── survey_app/                # Human evaluation interface
+│       ├── app.py                 # Flask web application
+│       └── responses/             # Human survey responses
+│
+├── 🏭 generator/                  # Image generation pipelines
+│   ├── T2I/                       # Text-to-Image generation
+│   └── I2I/                       # Image-to-Image editing
+│
+├── 🌐 ecb-human-survey/           # Next.js web application
+│   ├── src/                       # React components and logic
+│   ├── public/                    # Static assets
+│   └── firebase.json              # Firebase configuration
+│
+├── 📚 external_data/              # Cultural reference documents
+│   ├── China.pdf                  # Cultural knowledge sources
+│   ├── India.pdf
+│   └── [Other countries...]
+│
+├── 📄 iaseai26-paper/             # Research paper and documentation
+│   └── IASEAI26.pdf               # Academic publication
+│
+└── 🔧 Configuration Files
+    ├── requirements.txt            # Python dependencies
+    └── run_*.sh                   # Execution scripts
+```
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+```bash
+# Python environment
+conda create -n ecb python=3.8
+conda activate ecb
+
+# Install dependencies
+pip install -r evaluation/cultural_metric/requirements.txt
+pip install -r evaluation/general_metric/requirements.txt
+```
+
+### 1. Cultural Knowledge Base Setup
+
+```bash
+cd evaluation/cultural_metric/
+python build_cultural_index.py \
+    --data-dir ../../external_data/ \
+    --output-dir vector_store/
+```
+
+### 2. Run Cultural Evaluation
+
+```bash
+python enhanced_cultural_metric_pipeline.py \
+    --input-csv ../../dataset/flux/prompt-img-path.csv \
+    --image-root ../../dataset/flux/ \
+    --summary-csv results/flux_cultural_summary.csv \
+    --detail-csv results/flux_cultural_details.csv \
+    --index-dir vector_store/ \
+    --load-in-4bit \
+    --max-samples 50
+```
+
+### 3. Run General Metrics Evaluation
+
+```bash
+cd evaluation/general_metric/
+python multi_metric_evaluation.py \
+    --input-csv ../../dataset/flux/prompt-img-path.csv \
+    --image-root ../../dataset/flux/ \
+    --output-csv results/flux_general_metrics.csv
+```
+
+### 4. Generate Analysis Reports
+
+```bash
+cd evaluation/analysis/
+python cultural_analysis.py --model flux
+python general_metrics_analysis.py --model flux
+python multi_model_cultural_analysis.py  # Cross-model comparison
+```
+
+## 📊 Evaluation Metrics
+
+### Cultural Metrics
+
+| Metric | Description | Range | Evaluator |
+|--------|-------------|-------|-----------|
+| **Cultural Representative** | How well the image represents cultural elements | 1-5 | Qwen2-VL |
+| **Prompt Alignment** | Alignment with cultural context prompts | 1-5 | Qwen2-VL |
+| **Cultural Accuracy** | Binary classification accuracy (yes/no questions) | 0-1 | LLM-generated Q&A |
+| **Group Ranking** | Best/worst selection within cultural groups | Rank | Multi-image VLM |
+
+### General Metrics
+
+| Metric | Description | Range | Method |
+|--------|-------------|-------|--------|
+| **CLIP Score** | Semantic similarity to prompt | 0-1 | CLIP ViT-L/14 |
+| **Aesthetic Score** | Perceptual aesthetic quality | 0-10 | LAION Aesthetic |
+| **FID** | Image distribution similarity | 0-∞ | Inception features |
+| **LPIPS** | Perceptual distance | 0-1 | AlexNet features |
+
+## 🌍 Evaluation Scope
+
+### Countries Covered
+- 🇨🇳 China
+- 🇮🇳 India  
+- 🇰🇷 South Korea
+- 🇰🇪 Kenya
+- 🇳🇬 Nigeria
+- 🇺🇸 United States
+
+### Cultural Categories
+- 🏛️ Architecture (Traditional/Modern Houses, Landmarks)
+- 🎨 Art (Dance, Painting, Sculpture) 
+- 🎉 Events (Festivals, Weddings, Funerals, Sports)
+- 👗 Fashion (Clothing, Accessories, Makeup)
+- 🍜 Food (Dishes, Desserts, Beverages, Staples)
+- 🏞️ Landscape (Cities, Countryside, Nature)
+- 👥 People (Various Professions and Roles)
+- 🦁 Wildlife (Animals, Plants)
+
+### Models Evaluated
+- **FLUX**: State-of-the-art diffusion model
+- **HiDream**: High-resolution generation model
+- **Qwen-VL**: Vision-language multimodal model
+- **NextStep**: Advanced editing-focused model  
+- **Stable Diffusion 3.5**: Popular open-source model
+
+## 🔧 Advanced Usage
+
+### Custom Cultural Knowledge Integration
+
+```python
+from evaluation.cultural_metric.build_cultural_index import CulturalIndexBuilder
+
+builder = CulturalIndexBuilder()
+builder.add_cultural_documents(
+    country="MyCountry",
+    documents=["path/to/cultural_doc.pdf"],
+    categories=["architecture", "food", "art"]
+)
+builder.build_index("custom_vector_store/")
+```
+
+### Batch Evaluation Pipeline
+
+```bash
+# Evaluate all models with cultural and general metrics
+python evaluation/run_all_metrics.py \
+    --models flux hidream qwen \
+    --max-samples 100 \
+    --output-dir results/
+```
+
+### Human Survey Integration
+
+```bash
+cd ecb-human-survey/
+npm install
+npm run dev  # Start web interface on localhost:3000
+```
+
+## 📈 Results and Analysis
+
+### Key Findings
+
+1. **Cultural Representation Gaps**: Variations across countries and categories
+2. **Model-Specific Biases**: Different models show different cultural blind spots
+3. **Category-Dependent Performance**: Architecture and food show better representation than people and events
+4. **Editing Consistency**: Progressive editing maintains cultural consistency differently across models
+
+### Visualization Outputs
+
+- **Heatmaps**: Country × Category performance matrices
+- **Radar Charts**: Multi-dimensional model comparisons  
+- **Progression Plots**: Editing step quality evolution
+- **Statistical Reports**: Performance summaries
+
+## 🤝 Contributing
+
+Contributions welcome! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+### Areas for Contribution
+- Additional cultural knowledge sources
+- New evaluation metrics
+- Model integration
+- Visualization improvements
+- Survey interface enhancements
+
+## 📚 Citation
+
+If you use ECB in your research, please cite:
+
+```bibtex
+@inproceedings{ecb2024,
+  title={Exposing Cultural Blindspots: A Structured Audit of Generative Image Models},
+  author={[Author Names]},
+  booktitle={Proceedings of IASEAI 2026},
+  year={2024}
+}
+```
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Cultural knowledge sources from international organizations
+- Open-source model providers (FLUX, Stable Diffusion, Qwen)
+- Human evaluation participants
+- Academic collaborators and reviewers
+
+## 📞 Contact
+
+For questions, issues, or collaboration:
+
+- 📧 Email: [contact@ecb-project.org]
+- 🐛 Issues: [GitHub Issues](https://github.com/your-org/ecb/issues)
+- 💬 Discussions: [GitHub Discussions](https://github.com/your-org/ecb/discussions)
+
+---
+
+**ECB: Making Cultural Representation Visible, Measurable, and Improvable** 🌍
