@@ -68,7 +68,7 @@ export function useSurveyData() {
 
         // If no items loaded from files, use sample data
         if (allItems.length === 0) {
-          Object.entries(SAMPLE_CSV_DATA).forEach(([model, csvData]) => {
+          Object.entries(SAMPLE_CSV_DATA).forEach(([, csvData]) => {
             const lines = csvData.trim().split('\n');
             lines.forEach(line => {
               const item = parseCsvLine(line);

@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getUserProgress, getAttributionResponses } from '@/lib/firestore';
 import { getTotalQuestionsForModel } from '@/lib/dataset-loader';
 import { UserProgress } from '@/types/survey';
-import { Loader2, Play, CheckCircle, Users, Image as ImageIcon } from 'lucide-react';
+import { Loader2, Play, CheckCircle, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 
 // Multi-loop edit models
@@ -43,22 +43,6 @@ const MULTI_LOOP_MODELS = [
     name: 'Stable Diffusion 3.5 Medium', 
     description: 'Stability AI',
     experimentType: 'Multi-loop edit'
-  },
-];
-
-// Attribute addition models (for Attribution Evaluation)
-const ATTRIBUTE_ADDITION_MODELS = [
-  { 
-    id: 'flux', 
-    name: 'FLUX.1 Kontext [dev]', 
-    description: 'Black Forest Labs',
-    experimentType: 'Attribute addition'
-  },
-  { 
-    id: 'qwen', 
-    name: 'Qwen-Image-Edit', 
-    description: 'Alibaba Cloud',
-    experimentType: 'Attribute addition'
   },
 ];
 

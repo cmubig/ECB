@@ -75,9 +75,9 @@ export function createAttributionQuestion(country: string, attributionData: Arra
     .sort((a, b) => a.step - b.step)
     .map(item => ({
       step: item.step,
-      image_path: item.qwen_output_file,
-      url: `https://ecb-pub.s3.us-east-2.amazonaws.com/${item.qwen_output_file}`,
       prompt: item.prompt,
+      flux_url: item.flux_output_file,
+      qwen_url: item.qwen_output_file,
       label: `Step ${item.step}`,
     }));
 

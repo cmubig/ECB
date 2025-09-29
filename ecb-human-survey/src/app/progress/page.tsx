@@ -51,7 +51,7 @@ export default function ProgressPage() {
     if (user) {
       loadUserData();
     }
-  }, [user?.uid]);
+  }, [user, loadUserData]);
 
   if (authLoading || loading) {
     return (
@@ -259,29 +259,40 @@ export default function ProgressPage() {
                       <Badge variant="outline">{response.steps ? Object.keys(response.steps).length : 0} Steps</Badge>
                     </div>
                     
-                    {response.steps && Object.entries(response.steps).map(([stepNum, stepData]) => (
-                      <div key={stepNum} className="bg-gray-50 rounded-lg p-3 space-y-2">
-                        <div className="font-medium text-sm">Step {stepNum}: {stepData.prompt}</div>
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <div className="font-medium text-gray-600">FLUX.1 Kontext [dev]</div>
-                            <div className="space-y-1">
-                              <div>Prompt Alignment: {stepData.flux_prompt_alignment}/5</div>
-                              <div>Cultural Rep: {stepData.flux_cultural_representation}/5</div>
-                              <div>Image Quality: {stepData.flux_image_quality}/5</div>
+                    {response.steps && Object.entries(response.steps).map(([stepNum, stepData]) => {
+                      const data = stepData as {
+                        prompt: string;
+                        flux_prompt_alignment: number;
+                        flux_cultural_representation: number;
+                        flux_image_quality: number;
+                        qwen_prompt_alignment: number;
+                        qwen_cultural_representation: number;
+                        qwen_image_quality: number;
+                      };
+                      return (
+                        <div key={stepNum} className="bg-gray-50 rounded-lg p-3 space-y-2">
+                          <div className="font-medium text-sm">Step {stepNum}: {data.prompt}</div>
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <div className="font-medium text-gray-600">FLUX.1 Kontext [dev]</div>
+                              <div className="space-y-1">
+                                <div>Prompt Alignment: {data.flux_prompt_alignment}/5</div>
+                                <div>Cultural Rep: {data.flux_cultural_representation}/5</div>
+                                <div>Image Quality: {data.flux_image_quality}/5</div>
+                              </div>
                             </div>
-                          </div>
-                          <div>
-                            <div className="font-medium text-gray-600">Qwen-Image-Edit</div>
-                            <div className="space-y-1">
-                              <div>Prompt Alignment: {stepData.qwen_prompt_alignment}/5</div>
-                              <div>Cultural Rep: {stepData.qwen_cultural_representation}/5</div>
-                              <div>Image Quality: {stepData.qwen_image_quality}/5</div>
+                            <div>
+                              <div className="font-medium text-gray-600">Qwen-Image-Edit</div>
+                              <div className="space-y-1">
+                                <div>Prompt Alignment: {data.qwen_prompt_alignment}/5</div>
+                                <div>Cultural Rep: {data.qwen_cultural_representation}/5</div>
+                                <div>Image Quality: {data.qwen_image_quality}/5</div>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ))}
               </div>

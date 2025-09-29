@@ -113,11 +113,9 @@ export interface SurveyStats {
 // Attribution-based evaluation types
 export interface AttributionStep {
   step: number;
-  image_path: string;
-  url: string;
+  prompt: string;
   flux_url: string;
   qwen_url: string;
-  prompt: string;
   label: string;
 }
 
@@ -147,6 +145,7 @@ export interface AttributionResponse {
     qwen_cultural_representation: number; // 1-5
     qwen_image_quality: number; // 1-5
   }>;
+  steps?: Record<number, unknown>; // For backward compatibility
   comments?: string;
   timestamp: Date;
   completion_time_seconds: number;

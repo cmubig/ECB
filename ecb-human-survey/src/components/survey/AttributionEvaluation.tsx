@@ -3,10 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Loader2, ArrowLeft, ArrowRight, Info } from 'lucide-react';
+import { Loader2, ArrowRight, Info } from 'lucide-react';
 import { AttributionQuestion, AttributionResponse } from '@/types/survey';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -24,7 +22,6 @@ interface AttributionEvaluationProps {
 // Rating options
 const RATINGS = [1, 2, 3, 4, 5];
 const RATING_LABELS = ['Very Poor', 'Poor', 'Fair', 'Good', 'Excellent'];
-const RATING_COLORS = ['bg-gray-600', 'bg-gray-500', 'bg-gray-400', 'bg-gray-700', 'bg-gray-800'];
 
 interface StepRating {
   step: number;

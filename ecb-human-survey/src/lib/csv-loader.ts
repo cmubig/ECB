@@ -60,7 +60,7 @@ export function sampleSurveyItems(items: SurveyItem[], maxItems: number = 50): S
   const sampledItems: SurveyItem[] = [];
   const itemsPerModel = Math.floor(maxItems / Object.keys(itemsByModel).length);
   
-  Object.entries(itemsByModel).forEach(([model, modelItems]) => {
+  Object.entries(itemsByModel).forEach(([, modelItems]) => {
     // Shuffle items for this model
     const shuffled = [...modelItems].sort(() => Math.random() - 0.5);
     // Take a sample
