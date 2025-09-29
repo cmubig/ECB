@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { SurveyQuestion, SurveyItem, SurveyResponse, UserProgress } from '@/types/survey';
-import { parseCsvLine, createSurveyQuestion, shuffleArray, getImageUrl } from '@/lib/data-processor';
+import { parseCsvLine, createSurveyQuestion } from '@/lib/data-processor';
 import { useAuth } from '@/contexts/AuthContext';
 import { getUserProgress, updateUserProgress, createUserProgress, getUserResponses } from '@/lib/firestore';
 
@@ -21,7 +21,7 @@ export function useSingleModelSurveyData(selectedModel: string, selectedCountry:
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [userResponses, setUserResponses] = useState<Record<string, Omit<SurveyResponse, 'timestamp' | 'completion_time_seconds'>>>({});
+  const [userResponses, setUserResponses] = useState<Record<string, Omit<SurveyResponse, 'timestamp'>>>({});
   const [progress, setProgress] = useState<UserProgress | null>(null);
 
   const loadSurveyData = useCallback(async () => {
@@ -70,7 +70,7 @@ export function useSingleModelSurveyData(selectedModel: string, selectedCountry:
       const userProgress = await getUserProgress(user.uid);
       const existingResponses = await getUserResponses(user.uid);
 
-      const responsesMap: Record<string, Omit<SurveyResponse, 'timestamp' | 'completion_time_seconds'>> = {};
+      const responsesMap: Record<string, Omit<SurveyResponse, 'timestamp'>> = {};
       existingResponses.forEach(res => {
         if (res.model === selectedModel) {
           console.log('Loading existing response:', res);
@@ -85,7 +85,6 @@ export function useSingleModelSurveyData(selectedModel: string, selectedCountry:
 
       if (userProgress) {
         setProgress(userProgress);
-        const completedForModel = userProgress.completed_by_model?.[selectedModel] || [];
         const currentQuestionIndexForModel = userProgress.current_question_by_model?.[selectedModel] || 0;
 
         // Don't filter out completed questions - keep all questions for navigation
@@ -158,7 +157,7 @@ export function useSingleModelSurveyData(selectedModel: string, selectedCountry:
     }
   }, [user?.uid, progress, selectedModel, questions.length]);
 
-  const goToNextQuestion = useCallback(async (response: Omit<SurveyResponse, 'timestamp' | 'completion_time_seconds'>) => {
+  const goToNextQuestion = useCallback(async (response: Omit<SurveyResponse, 'timestamp'>) => {
     if (!user?.uid) return;
 
     console.log('goToNextQuestion called with response:', response);

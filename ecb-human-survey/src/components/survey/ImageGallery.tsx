@@ -16,6 +16,7 @@ interface ImageGalleryProps {
   onBestSelect?: (step: number) => void;
   onWorstSelect?: (step: number) => void;
   showSelectionMode?: boolean;
+  currentImageKey?: string;
 }
 
 export function ImageGallery({
@@ -26,8 +27,13 @@ export function ImageGallery({
   onBestSelect,
   onWorstSelect,
   showSelectionMode = false,
+  currentImageKey,
 }: ImageGalleryProps) {
   const [loadingImages, setLoadingImages] = useState<Set<number>>(new Set(images.map(img => img.step)));
+  const [imageStates, setImageStates] = useState<Record<number, 'loading' | 'loaded' | 'error'>>(
+    Object.fromEntries(images.map(img => [img.step, 'loading']))
+  );
+  const imageKey = currentImageKey || `gallery-${Date.now()}`;
 
   const handleImageLoad = (step: number) => {
     setLoadingImages(prev => {
@@ -35,6 +41,7 @@ export function ImageGallery({
       newSet.delete(step);
       return newSet;
     });
+    setImageStates(prev => ({ ...prev, [step]: 'loaded' }));
   };
 
   const handleImageError = (step: number) => {
@@ -43,48 +50,52 @@ export function ImageGallery({
       newSet.delete(step);
       return newSet;
     });
+    setImageStates(prev => ({ ...prev, [step]: 'error' }));
   };
 
   const handleImageClick = (step: number) => {
     if (!showSelectionMode) return;
 
-    // If clicking on already selected best/worst, deselect it
-    if (selectedBest === step && onBestSelect) {
-      onBestSelect(-1);
-      return;
-    }
-    if (selectedWorst === step && onWorstSelect) {
-      onWorstSelect(-1);
-      return;
-    }
+    // Add a small delay for smoother visual feedback
+    setTimeout(() => {
+      // If clicking on already selected best/worst, deselect it
+      if (selectedBest === step && onBestSelect) {
+        onBestSelect(-1);
+        return;
+      }
+      if (selectedWorst === step && onWorstSelect) {
+        onWorstSelect(-1);
+        return;
+      }
 
-    // Smart selection logic
-    if (selectedBest === undefined || selectedBest === -1) {
-      onBestSelect?.(step);
-    } else if (selectedWorst === undefined || selectedWorst === -1) {
-      if (step !== selectedBest) {
-        onWorstSelect?.(step);
-      }
-    } else {
-      // Both are selected, replace the one that's not this step
-      if (selectedBest !== step) {
+      // Smart selection logic
+      if (selectedBest === undefined || selectedBest === -1) {
         onBestSelect?.(step);
-      } else if (selectedWorst !== step) {
-        onWorstSelect?.(step);
+      } else if (selectedWorst === undefined || selectedWorst === -1) {
+        if (step !== selectedBest) {
+          onWorstSelect?.(step);
+        }
+      } else {
+        // Both are selected, replace the one that's not this step
+        if (selectedBest !== step) {
+          onBestSelect?.(step);
+        } else if (selectedWorst !== step) {
+          onWorstSelect?.(step);
+        }
       }
-    }
+    }, 100); // Small delay for visual feedback
   };
 
   const getCardClassName = (step: number) => {
-    let className = "relative cursor-pointer transition-all duration-200 hover:shadow-lg";
+    let className = "relative cursor-pointer transition-all duration-300 ease-in-out hover:shadow-xl hover:scale-[1.02]";
 
     if (showSelectionMode) {
       if (selectedBest === step) {
-        className += " ring-4 ring-emerald-400 shadow-lg shadow-emerald-200/50";
+        className += " ring-4 ring-emerald-400 shadow-2xl shadow-emerald-200/60 scale-[1.03] bg-emerald-50/30";
       } else if (selectedWorst === step) {
-        className += " ring-4 ring-rose-300 shadow-lg shadow-rose-200/50";
+        className += " ring-4 ring-rose-300 shadow-2xl shadow-rose-200/60 scale-[1.03] bg-rose-50/30";
       } else {
-        className += " hover:ring-2 hover:ring-blue-300";
+        className += " hover:ring-2 hover:ring-blue-300 hover:shadow-lg";
       }
     }
 
@@ -94,22 +105,32 @@ export function ImageGallery({
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {images.map((image) => (
-        <Card 
-          key={image.step} 
+        <Card
+          key={`${image.step}-${imageKey}`}
           className={getCardClassName(image.step)}
           onClick={() => handleImageClick(image.step)}
         >
           <CardContent className="p-2">
-            <div className="relative aspect-square mb-2">
+            <div className="relative aspect-square mb-2 overflow-hidden rounded-lg">
+              {/* Enhanced loading skeleton with shimmer effect */}
               {loadingImages.has(image.step) && (
-                <Skeleton className="absolute inset-0 rounded" />
+                <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
               )}
+
+              {/* Image with smooth transitions */}
               <Image
+                key={`${image.step}-${imageKey}`}
                 src={getImageUrl(image.image_path, model)}
                 alt={image.label}
                 fill
-                className={`object-cover rounded transition-opacity duration-300 ${
-                  loadingImages.has(image.step) ? 'opacity-0' : 'opacity-100'
+                className={`object-cover transition-all duration-300 ease-in-out transform ${
+                  loadingImages.has(image.step)
+                    ? 'opacity-0 scale-95'
+                    : 'opacity-100 scale-100'
+                } ${
+                  selectedBest === image.step || selectedWorst === image.step
+                    ? 'scale-105'
+                    : 'hover:scale-105'
                 }`}
                 onLoad={() => handleImageLoad(image.step)}
                 onError={() => handleImageError(image.step)}

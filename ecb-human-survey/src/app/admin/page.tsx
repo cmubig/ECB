@@ -175,7 +175,7 @@ export default function AdminPage() {
             <CardTitle>Admin Access Required</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>You don't have permission to access this page.</p>
+            <p>You don&apos;t have permission to access this page.</p>
             <p className="text-sm text-gray-600 mt-2">
               Contact the administrator if you need access.
             </p>

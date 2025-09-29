@@ -1,17 +1,16 @@
-import { 
-  collection, 
-  doc, 
-  addDoc, 
+import {
+  collection,
+  doc,
+  addDoc,
   setDoc,
-  updateDoc, 
-  getDoc, 
-  getDocs, 
-  query, 
-  where, 
-  orderBy, 
+  updateDoc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+  orderBy,
   limit,
-  serverTimestamp,
-  Timestamp 
+  serverTimestamp
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { SurveyResponse, UserProgress, SurveyStats, UserProfile, StepResponse } from '@/types/survey';
@@ -68,11 +67,30 @@ export async function getStepResponses(userId?: string, model?: string): Promise
     q = query(q, orderBy('timestamp', 'desc'));
     
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      timestamp: doc.data().timestamp?.toDate() || new Date(),
-    })) as StepResponse[];
+    return querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        uid: data.uid,
+        group_id: data.group_id,
+        step: data.step,
+        user_id: data.user_id,
+        model: data.model,
+        country: data.country,
+        category: data.category,
+        sub_category: data.sub_category,
+        variant: data.variant,
+        prompt: data.prompt,
+        editing_prompt: data.editing_prompt,
+        image_url: data.image_url,
+        prompt_alignment: data.prompt_alignment,
+        cultural_representative: data.cultural_representative,
+        is_best: data.is_best,
+        is_worst: data.is_worst,
+        comments: data.comments,
+        timestamp: data.timestamp?.toDate() || new Date(),
+        completion_time_seconds: data.completion_time_seconds,
+      } as StepResponse;
+    });
   } catch (error) {
     console.error('Error getting step responses:', error);
     throw error;
@@ -185,7 +203,7 @@ export async function getSurveyStats(): Promise<SurveyStats | null> {
 export async function updateSurveyStats(stats: SurveyStats): Promise<void> {
   try {
     const docRef = doc(db, STATS_COLLECTION, 'global');
-    await updateDoc(docRef, stats);
+    await updateDoc(docRef, stats as unknown as Record<string, number | string | Record<string, number>>);
   } catch (error) {
     console.error('Error updating survey stats:', error);
     throw error;

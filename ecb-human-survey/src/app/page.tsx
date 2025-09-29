@@ -9,7 +9,6 @@ import { ProgressDashboard } from '@/components/dashboard/ProgressDashboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import Link from 'next/link';
 
 export default function Home() {
   const { user, loading, userProfile } = useAuth();
@@ -227,7 +226,7 @@ export default function Home() {
 
                 <div className="bg-gray-100 p-4 rounded">
                   <p className="text-sm text-gray-700">
-                    <strong>Time:</strong> 10-15 minutes per model (participate in as many as you'd like)
+                    <strong>Time:</strong> 10-15 minutes per model (participate in as many as you&apos;d like)
                   </p>
                 </div>
               </CardContent>

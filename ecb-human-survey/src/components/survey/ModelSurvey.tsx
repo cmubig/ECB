@@ -21,7 +21,6 @@ interface ModelSurveyProps {
 export function ModelSurvey({ model, country }: ModelSurveyProps) {
   const { user } = useAuth();
   const {
-    questions,
     currentQuestion,
     currentQuestionIndex,
     loading,
@@ -32,12 +31,19 @@ export function ModelSurvey({ model, country }: ModelSurveyProps) {
     isFirstQuestion,
     isLastQuestion,
     initialResponseForCurrentQuestion,
-    progress,
   } = useSingleModelSurveyData(model, country);
 
   const [isSubmittingResponse, setIsSubmittingResponse] = useState(false);
+  const [currentImageKey, setCurrentImageKey] = useState<string>(`question-${currentQuestion?.id || 'default'}-${Date.now()}`);
 
-  const handleNextQuestion = async (response: Omit<SurveyResponse, 'timestamp' | 'completion_time_seconds'>) => {
+  // Update image key when question changes to force re-render
+  useEffect(() => {
+    if (currentQuestion?.id) {
+      setCurrentImageKey(`question-${currentQuestion.id}-${Date.now()}`);
+    }
+  }, [currentQuestion?.id]);
+
+  const handleNextQuestion = async (response: Omit<SurveyResponse, 'timestamp'>) => {
     if (!user?.uid) {
       toast.error('Authentication Error', { description: 'You must be logged in to submit responses.' });
       return;
@@ -45,7 +51,7 @@ export function ModelSurvey({ model, country }: ModelSurveyProps) {
     setIsSubmittingResponse(true);
     try {
       // Create step responses for detailed analysis
-      const imageRatings = (response as any).imageRatings;
+      const imageRatings = response.imageRatings;
       if (imageRatings && currentQuestion) {
         const stepResponses: Omit<StepResponse, 'timestamp'>[] = currentQuestion.images.map((img) => {
           const rating = imageRatings[img.step];
@@ -174,7 +180,7 @@ export function ModelSurvey({ model, country }: ModelSurveyProps) {
               {model.toUpperCase()} Survey Completed!
             </CardTitle>
             <CardDescription className="text-green-700">
-              Excellent work! You've evaluated all {totalQuestions} questions for {model.toUpperCase()} in {country}.
+              Excellent work! You&apos;ve evaluated all {totalQuestions} questions for {model.toUpperCase()} in {country}.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -243,7 +249,7 @@ export function ModelSurvey({ model, country }: ModelSurveyProps) {
           isFirst={isFirstQuestion}
           isLast={isLastQuestion}
           initialResponse={initialResponseForCurrentQuestion}
-          loading={isSubmittingResponse}
+          currentImageKey={currentImageKey}
         />
       )}
     </div>

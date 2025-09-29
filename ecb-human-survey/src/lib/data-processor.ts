@@ -19,14 +19,6 @@ const MODEL_MAPPING: Record<string, string> = {
   'sd35': 'sd35',
 };
 
-// Reverse mapping for CSV model names
-const DISPLAY_TO_CSV_MODEL: Record<string, string> = {
-  'flux': 'flux',
-  'hidream': 'hidream',
-  'nextstep': 'nextstep',
-  'qwen': 'qwenimage',
-  'sd35': 'sd35',
-};
 
 function parseCSVLine(line: string): string[] {
   const result: string[] = [];

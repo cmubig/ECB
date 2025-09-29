@@ -28,10 +28,9 @@ interface ModelProgressProps {
   description: string;
   completed: number;
   total: number;
-  country: string;
 }
 
-function ModelProgressCard({ modelId, modelName, description, completed, total, country }: ModelProgressProps) {
+function ModelProgressCard({ modelId, modelName, description, completed, total }: ModelProgressProps) {
   const progressPercentage = total > 0 ? (completed / total) * 100 : 0;
   const isCompleted = completed >= total;
   const isComingSoon = total === 0;
@@ -192,7 +191,6 @@ export function ProgressDashboard({ country }: ProgressDashboardProps) {
                 description={model.description}
                 completed={completed}
                 total={total}
-                country={country}
               />
             );
           })}

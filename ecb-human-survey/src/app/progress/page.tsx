@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { getUserProgress, getUserResponses } from '@/lib/firestore';
@@ -25,13 +25,7 @@ export default function ProgressPage() {
     }
   }, [user, authLoading, router]);
 
-  useEffect(() => {
-    if (user) {
-      loadUserData();
-    }
-  }, [user]);
-
-  const loadUserData = async () => {
+  const loadUserData = useCallback(async (): Promise<void> => {
     if (!user) return;
 
     try {
@@ -48,7 +42,13 @@ export default function ProgressPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.uid]);
+
+  useEffect(() => {
+    if (user) {
+      loadUserData();
+    }
+  }, [user?.uid]);
 
   if (authLoading || loading) {
     return (
@@ -70,11 +70,11 @@ export default function ProgressPage() {
     : 0;
 
   const averagePromptAlignment = responses.length > 0
-    ? responses.reduce((sum, r) => sum + r.prompt_alignment_score, 0) / responses.length
+    ? responses.reduce((sum, r) => sum + r.prompt_alignment, 0) / responses.length
     : 0;
 
   const averageCulturalScore = responses.length > 0
-    ? responses.reduce((sum, r) => sum + r.cultural_representative_score, 0) / responses.length
+    ? responses.reduce((sum, r) => sum + r.cultural_representative, 0) / responses.length
     : 0;
 
   const modelCounts = responses.reduce((acc, response) => {
@@ -239,21 +239,21 @@ export default function ProgressPage() {
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
-                        <span className="font-medium">Prompt Alignment:</span> {response.prompt_alignment_score}/5
+                        <span className="font-medium">Prompt Alignment:</span> {response.prompt_alignment}/5
                       </div>
                       <div>
-                        <span className="font-medium">Cultural Score:</span> {response.cultural_representative_score}/5
+                        <span className="font-medium">Cultural Score:</span> {response.cultural_representative}/5
                       </div>
                       <div>
-                        <span className="font-medium">Best Step:</span> {response.best_image_step}
+                        <span className="font-medium">Best Step:</span> {response.best_step}
                       </div>
                       <div>
-                        <span className="font-medium">Worst Step:</span> {response.worst_image_step}
+                        <span className="font-medium">Worst Step:</span> {response.worst_step}
                       </div>
                     </div>
                     {response.comments && (
                       <div className="text-sm text-gray-600 italic">
-                        "{response.comments}"
+                        &ldquo;{response.comments}&rdquo;
                       </div>
                     )}
                     <div className="text-xs text-gray-500">

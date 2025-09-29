@@ -38,7 +38,7 @@ export function useSurveyData() {
         setLoading(true);
         
         // Try to load from actual CSV files first, fallback to sample data
-        let allItems: SurveyItem[] = [];
+        const allItems: SurveyItem[] = [];
         
         try {
           // Try to load from actual files

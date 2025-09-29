@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -15,12 +15,12 @@ import Image from 'next/image';
 
 interface SurveyQuestionProps {
   question: SurveyQuestionType;
-  onNext: (response: Omit<SurveyResponse, 'timestamp' | 'completion_time_seconds'>) => Promise<void>;
+  onNext: (response: Omit<SurveyResponse, 'timestamp'>) => Promise<void>;
   onPrevious: () => void;
   isFirst: boolean;
   isLast: boolean;
-  initialResponse?: Omit<SurveyResponse, 'timestamp' | 'completion_time_seconds'>;
-  loading: boolean;
+  initialResponse?: Omit<SurveyResponse, 'timestamp'>;
+  currentImageKey?: string;
 }
 
 // Rating options
@@ -41,7 +41,7 @@ export function SurveyQuestion({
   isFirst,
   isLast,
   initialResponse,
-  loading,
+  currentImageKey,
 }: SurveyQuestionProps) {
   // Individual ratings for each image
   const [imageRatings, setImageRatings] = useState<Record<number, ImageRating>>({});
@@ -51,17 +51,18 @@ export function SurveyQuestion({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [startTime, setStartTime] = useState(Date.now());
   const [loadingImages, setLoadingImages] = useState<Set<number>>(new Set(question.images?.map(img => img.step) || []));
+  const imageKey = currentImageKey || `question-${question.id || 'default'}-${Date.now()}`;
 
-  // Initialize ratings for each image
+  // Initialize ratings for each image and reset all states when question changes
   useEffect(() => {
     console.log('SurveyQuestion initialResponse:', initialResponse);
     console.log('Question ID:', question.id);
-    
+
     const initialRatings: Record<number, ImageRating> = {};
-    
+
     // If we have initial response with imageRatings, use those
-    if (initialResponse && (initialResponse as any).imageRatings) {
-      const savedRatings = (initialResponse as any).imageRatings;
+    if (initialResponse && initialResponse.imageRatings) {
+      const savedRatings = initialResponse.imageRatings;
       question.images?.forEach((img) => {
         initialRatings[img.step] = savedRatings[img.step] || {
           step: img.step,
@@ -79,17 +80,22 @@ export function SurveyQuestion({
         };
       });
     }
-    
+
+    // Reset all states when question changes
     setImageRatings(initialRatings);
-    
-    // Debug best/worst step restoration
-    console.log('Restoring best_step:', initialResponse?.best_step);
-    console.log('Restoring worst_step:', initialResponse?.worst_step);
-    
     setBestStep(initialResponse?.best_step ?? null);
     setWorstStep(initialResponse?.worst_step ?? null);
     setComments(initialResponse?.comments || '');
     setStartTime(Date.now());
+
+    // Reset loading states for new images
+    if (question.images) {
+      setLoadingImages(new Set(question.images.map(img => img.step)));
+    }
+
+    // Debug best/worst step restoration
+    console.log('Restoring best_step:', initialResponse?.best_step);
+    console.log('Restoring worst_step:', initialResponse?.worst_step);
   }, [question.id, question.images, initialResponse]);
 
   const handleImageLoad = (step: number) => {
@@ -154,7 +160,7 @@ export function SurveyQuestion({
     const avgPromptAlignment = Object.values(imageRatings).reduce((sum, rating) => sum + rating.promptAlignment, 0) / Object.values(imageRatings).length;
     const avgCulturalRepresentative = Object.values(imageRatings).reduce((sum, rating) => sum + rating.culturalRepresentative, 0) / Object.values(imageRatings).length;
 
-    const response: Omit<SurveyResponse, 'timestamp' | 'completion_time_seconds'> = {
+    const response: Omit<SurveyResponse, 'timestamp'> = {
       question_id: question.id || '',
       user_id: '', // Will be set in the handler
       model: question.model || '',
@@ -173,7 +179,7 @@ export function SurveyQuestion({
       completion_time_seconds: completionTimeSeconds,
       // Add individual image ratings for processing
       imageRatings: imageRatings,
-    } as any;
+    };
 
     try {
       await onNext(response);
@@ -222,24 +228,34 @@ export function SurveyQuestion({
                 const rating = imageRatings[img.step];
                 
                 return (
-                  <div key={img.step} className="space-y-4">
+                  <div key={`${img.step}-${imageKey}`} className="space-y-4">
                     {/* Image */}
                     <div className={cn(
-                      "relative border-2 rounded-lg overflow-hidden transition-all",
-                      bestStep === img.step ? "border-emerald-400 ring-4 ring-emerald-200 shadow-lg shadow-emerald-100/50" :
-                      worstStep === img.step ? "border-rose-300 ring-4 ring-rose-200 shadow-lg shadow-rose-100/50" :
-                      "border-gray-200"
+                      "relative border-2 rounded-lg overflow-hidden transition-all duration-300 ease-in-out",
+                      bestStep === img.step ? "border-emerald-400 ring-4 ring-emerald-200 shadow-2xl shadow-emerald-100/60 bg-emerald-50/30" :
+                      worstStep === img.step ? "border-rose-300 ring-4 ring-rose-200 shadow-2xl shadow-rose-100/60 bg-rose-50/30" :
+                      "border-gray-200 hover:shadow-lg hover:scale-[1.02]"
                     )}>
+                      {/* Enhanced loading skeleton with shimmer effect */}
                       {loadingImages.has(img.step) && (
-                        <Skeleton className="absolute inset-0" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
                       )}
+
+                      {/* Image with smooth transitions */}
                       <Image
+                        key={`${img.step}-${imageKey}`}
                         src={img.url}
                         alt={`Image ${index + 1}`}
                         width={300}
                         height={300}
-                        className={`w-full h-48 object-cover transition-opacity duration-300 ${
-                          loadingImages.has(img.step) ? 'opacity-0' : 'opacity-100'
+                        className={`w-full h-48 object-cover transition-all duration-300 ease-in-out transform ${
+                          loadingImages.has(img.step)
+                            ? 'opacity-0 scale-95'
+                            : 'opacity-100 scale-100'
+                        } ${
+                          bestStep === img.step || worstStep === img.step
+                            ? 'scale-105'
+                            : 'hover:scale-105'
                         }`}
                         onLoad={() => handleImageLoad(img.step)}
                         onError={() => handleImageError(img.step)}

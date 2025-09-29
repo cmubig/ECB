@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { ModelTabs } from '@/components/survey/ModelTabs';
@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Loader2 } from 'lucide-react';
 
-export default function SurveyPage() {
+function SurveyContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading, userProfile } = useAuth();
@@ -46,8 +46,8 @@ export default function SurveyPage() {
               </Badge>
             </div>
             <div className="flex items-center space-x-3">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => router.push('/')}
                 className="text-xs border-gray-300 text-gray-700 hover:bg-gray-50"
@@ -62,11 +62,23 @@ export default function SurveyPage() {
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-8">
-        <ModelTabs 
-          selectedCountry={userProfile.selected_country} 
+        <ModelTabs
+          selectedCountry={userProfile.selected_country}
           initialModel={selectedModel}
         />
       </main>
     </div>
+  );
+}
+
+export default function SurveyPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-600" />
+      </div>
+    }>
+      <SurveyContent />
+    </Suspense>
   );
 }
