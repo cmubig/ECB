@@ -6,8 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Loader2, ArrowLeft, ArrowRight, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Loader2, ArrowLeft, ArrowRight, ThumbsUp, ThumbsDown, Info } from 'lucide-react';
 import { SurveyQuestion as SurveyQuestionType, SurveyResponse } from '@/types/survey';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -30,7 +29,7 @@ const RATING_COLORS = ['bg-gray-600', 'bg-gray-500', 'bg-gray-400', 'bg-gray-700
 
 interface ImageRating {
   step: number;
-  promptAlignment: number;
+  imageQuality: number;
   culturalRepresentative: number;
 }
 
@@ -66,7 +65,7 @@ export function SurveyQuestion({
       question.images?.forEach((img) => {
         initialRatings[img.step] = savedRatings[img.step] || {
           step: img.step,
-          promptAlignment: 3,
+          imageQuality: 3,
           culturalRepresentative: 3,
         };
       });
@@ -75,7 +74,7 @@ export function SurveyQuestion({
       question.images?.forEach((img) => {
         initialRatings[img.step] = {
           step: img.step,
-          promptAlignment: 3,
+          imageQuality: 3,
           culturalRepresentative: 3,
         };
       });
@@ -128,7 +127,7 @@ export function SurveyQuestion({
     }
   };
 
-  const updateImageRating = (step: number, field: 'promptAlignment' | 'culturalRepresentative', value: number) => {
+  const updateImageRating = (step: number, field: 'imageQuality' | 'culturalRepresentative', value: number) => {
     setImageRatings(prev => ({
       ...prev,
       [step]: {
@@ -157,7 +156,7 @@ export function SurveyQuestion({
     const completionTimeSeconds = Math.round((Date.now() - startTime) / 1000);
 
     // Calculate average scores (for backward compatibility)
-    const avgPromptAlignment = Object.values(imageRatings).reduce((sum, rating) => sum + rating.promptAlignment, 0) / Object.values(imageRatings).length;
+    const avgImageQuality = Object.values(imageRatings).reduce((sum, rating) => sum + rating.imageQuality, 0) / Object.values(imageRatings).length;
     const avgCulturalRepresentative = Object.values(imageRatings).reduce((sum, rating) => sum + rating.culturalRepresentative, 0) / Object.values(imageRatings).length;
 
     const response: Omit<SurveyResponse, 'timestamp'> = {
@@ -171,7 +170,7 @@ export function SurveyQuestion({
       prompt: question.prompt || '',
       editing_prompt: question.editing_prompt || '',
       image_urls: question.images?.map(img => img.url) || [],
-      prompt_alignment: Math.round(avgPromptAlignment),
+      image_quality: Math.round(avgImageQuality),
       cultural_representative: Math.round(avgCulturalRepresentative),
       best_step: bestStep!,
       worst_step: worstStep!,
@@ -286,27 +285,36 @@ export function SurveyQuestion({
                       )}
                     </div>
                     
-                    {/* Prompt Alignment Rating */}
+                    {/* Image Quality Rating */}
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <Label className="text-xs font-medium text-gray-700">Prompt Alignment</Label>
+                        <div className="flex items-center gap-2">
+                          <Label className="text-xs font-medium text-gray-700">Image Quality</Label>
+                          <div className="relative group">
+                            <Info className="w-3 h-3 text-gray-400 cursor-help" />
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                              How well does the image match the requested style and visual quality?
+                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                          </div>
+                        </div>
                         <span className="text-xs text-gray-500 font-medium">
-                          {rating?.promptAlignment ? RATING_LABELS[rating.promptAlignment - 1] : 'Fair'}
+                          {rating?.imageQuality ? RATING_LABELS[rating.imageQuality - 1] : 'Fair'}
                         </span>
                       </div>
                       <div className="flex gap-1">
                         {RATINGS.map((score) => (
                           <Button
-                            key={`prompt-${img.step}-${score}`}
+                            key={`quality-${img.step}-${score}`}
                             variant="outline"
                             size="sm"
                             className={cn(
                               "w-8 h-8 p-0 text-xs font-medium transition-all",
-                              rating?.promptAlignment === score
+                              rating?.imageQuality === score
                                 ? `${RATING_COLORS[score - 1]} text-white border-transparent hover:opacity-90`
                                 : "border-gray-300 text-gray-600 hover:bg-gray-50"
                             )}
-                            onClick={() => updateImageRating(img.step, 'promptAlignment', score)}
+                            onClick={() => updateImageRating(img.step, 'imageQuality', score)}
                           >
                             {score}
                           </Button>
@@ -317,7 +325,16 @@ export function SurveyQuestion({
                     {/* Cultural Representation Rating */}
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <Label className="text-xs font-medium text-gray-700">Cultural Representation</Label>
+                        <div className="flex items-center gap-2">
+                          <Label className="text-xs font-medium text-gray-700">Cultural Representation</Label>
+                          <div className="relative group">
+                            <Info className="w-3 h-3 text-gray-400 cursor-help" />
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                              How well does the image represent the cultural context and authenticity?
+                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                          </div>
+                        </div>
                         <span className="text-xs text-gray-500 font-medium">
                           {rating?.culturalRepresentative ? RATING_LABELS[rating.culturalRepresentative - 1] : 'Fair'}
                         </span>
@@ -350,7 +367,7 @@ export function SurveyQuestion({
           {/* Best/Worst Selection */}
           <div className="space-y-6 bg-gray-50 p-6 rounded-lg">
             <h3 className="text-lg font-medium text-center text-gray-800">
-              Which image do you like most and least?
+            Which image is best and worst?
             </h3>
             
             <div className="grid grid-cols-2 gap-8">
@@ -407,7 +424,7 @@ export function SurveyQuestion({
             </div>
 
             {/* Selection Status */}
-            {(bestStep !== null || worstStep !== null) && (
+            {/* {(bestStep !== null || worstStep !== null) && (
               <div className="text-center text-sm text-gray-600 bg-white p-3 rounded border">
                 {bestStep !== null && worstStep !== null ? (
                   <button
@@ -421,11 +438,11 @@ export function SurveyQuestion({
                   <span>Please select both best and worst images</span>
                 )}
               </div>
-            )}
+            )} */}
           </div>
 
           {/* Comments */}
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label className="text-sm font-medium">Additional Comments (Optional)</Label>
             <Textarea
               placeholder="Any specific observations about the images or cultural representation..."
@@ -433,7 +450,7 @@ export function SurveyQuestion({
               onChange={(e) => setComments(e.target.value)}
               className="min-h-[80px] text-sm"
             />
-          </div>
+          </div> */}
 
           {/* Navigation */}
           <div className="flex justify-between items-center pt-6 border-t">

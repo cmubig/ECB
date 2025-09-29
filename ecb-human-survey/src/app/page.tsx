@@ -186,8 +186,8 @@ export default function Home() {
               <CardContent className="space-y-6">
                 <div className="space-y-4">
                   <p className="text-gray-700 leading-relaxed">
-                    This research evaluates how well AI image generation models represent different cultures. 
-                    Your perspective as someone from {userProfile?.selected_country} helps us understand 
+                    This research evaluates how well AI image generation models represent different cultures.
+                    Your perspective as someone from {userProfile?.selected_country} helps us understand
                     cultural representation accuracy.
                   </p>
 
@@ -226,11 +226,12 @@ export default function Home() {
 
                 <div className="bg-gray-100 p-4 rounded">
                   <p className="text-sm text-gray-700">
-                    <strong>Time:</strong> 10-15 minutes per model (participate in as many as you&apos;d like)
+                    <strong>Time:</strong> 25-30 minutes per model (participate in as many as you&apos;d like)
                   </p>
                 </div>
               </CardContent>
             </Card>
+
           </div>
         )}
       </main>

@@ -3,7 +3,7 @@
 import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { ModelTabs } from '@/components/survey/ModelTabs';
+import { ModelSurvey } from '@/components/survey/ModelSurvey';
 import { UserProfile } from '@/components/auth/UserProfile';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,9 +13,9 @@ function SurveyContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading, userProfile } = useAuth();
-  
-  // Get model from URL parameter
-  const selectedModel = searchParams.get('model');
+
+  // Get model from URL parameter, default to 'flux' if not provided
+  const selectedModel = searchParams.get('model') || 'flux';
 
   useEffect(() => {
     if (!loading && !user) {
@@ -40,7 +40,9 @@ function SurveyContent() {
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-medium text-gray-900">Cultural Image Survey</h1>
+              <h1 className="text-xl font-medium text-gray-900">
+                {selectedModel.charAt(0).toUpperCase() + selectedModel.slice(1)} Survey
+              </h1>
               <Badge variant="outline" className="text-xs border-gray-300 text-gray-700">
                 {userProfile.selected_country}
               </Badge>
@@ -62,9 +64,9 @@ function SurveyContent() {
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-8">
-        <ModelTabs
-          selectedCountry={userProfile.selected_country}
-          initialModel={selectedModel}
+        <ModelSurvey
+          model={selectedModel}
+          country={userProfile.selected_country}
         />
       </main>
     </div>

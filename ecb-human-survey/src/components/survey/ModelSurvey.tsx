@@ -33,7 +33,6 @@ export function ModelSurvey({ model, country }: ModelSurveyProps) {
     initialResponseForCurrentQuestion,
   } = useSingleModelSurveyData(model, country);
 
-  const [isSubmittingResponse, setIsSubmittingResponse] = useState(false);
   const [currentImageKey, setCurrentImageKey] = useState<string>(`question-${currentQuestion?.id || 'default'}-${Date.now()}`);
 
   // Update image key when question changes to force re-render
@@ -48,7 +47,6 @@ export function ModelSurvey({ model, country }: ModelSurveyProps) {
       toast.error('Authentication Error', { description: 'You must be logged in to submit responses.' });
       return;
     }
-    setIsSubmittingResponse(true);
     try {
       // Create step responses for detailed analysis
       const imageRatings = response.imageRatings;
@@ -56,7 +54,7 @@ export function ModelSurvey({ model, country }: ModelSurveyProps) {
         const stepResponses: Omit<StepResponse, 'timestamp'>[] = currentQuestion.images.map((img) => {
           const rating = imageRatings[img.step];
           const stepName = img.step === 0 ? 'step0' : `step${img.step}`;
-          
+
           return {
             uid: `${response.model}_${response.country}_${response.category}_${response.sub_category}_${response.variant}::${stepName}`,
             group_id: `${response.model}_${response.country}_${response.category}_${response.sub_category}_${response.variant}`,
@@ -70,7 +68,7 @@ export function ModelSurvey({ model, country }: ModelSurveyProps) {
             prompt: response.prompt,
             editing_prompt: response.editing_prompt,
             image_url: img.url,
-            prompt_alignment: rating?.promptAlignment || 3,
+            image_quality: rating?.imageQuality || 3,
             cultural_representative: rating?.culturalRepresentative || 3,
             is_best: response.best_step === img.step,
             is_worst: response.worst_step === img.step,
@@ -78,7 +76,7 @@ export function ModelSurvey({ model, country }: ModelSurveyProps) {
             completion_time_seconds: response.completion_time_seconds,
           };
         });
-        
+
         // Save both summary response and detailed step responses
         await Promise.all([
           saveSurveyResponse({ ...response, user_id: user.uid }),
@@ -87,14 +85,12 @@ export function ModelSurvey({ model, country }: ModelSurveyProps) {
       } else {
         await saveSurveyResponse({ ...response, user_id: user.uid });
       }
-      
+
       await goToNextQuestion(response);
       toast.success('Response saved!', { description: 'Moving to the next question.' });
     } catch (err) {
       console.error('Error saving response:', err);
       toast.error('Failed to save response.', { description: (err as Error).message });
-    } finally {
-      setIsSubmittingResponse(false);
     }
   };
 

@@ -1,4 +1,4 @@
-import { SurveyItem, SurveyQuestion, ImageStep } from '@/types/survey';
+import { SurveyItem, SurveyQuestion, ImageStep, AttributionQuestion, AttributionStep } from '@/types/survey';
 
 // Country name mapping from CSV format to display format
 const COUNTRY_MAPPING: Record<string, string> = {
@@ -24,10 +24,10 @@ function parseCSVLine(line: string): string[] {
   const result: string[] = [];
   let current = '';
   let inQuotes = false;
-  
+
   for (let i = 0; i < line.length; i++) {
     const char = line[i];
-    
+
     if (char === '"') {
       inQuotes = !inQuotes;
     } else if (char === ',' && !inQuotes) {
@@ -37,9 +37,58 @@ function parseCSVLine(line: string): string[] {
       current += char;
     }
   }
-  
+
   result.push(current.trim());
   return result;
+}
+
+// Parse attribution CSV data
+export function parseAttributionCSV(csvText: string): Record<string, Array<{step: number; prompt: string; flux_output_file: string; qwen_output_file: string}>> {
+  const lines = csvText.trim().split('\n');
+  const headers = parseCSVLine(lines[0]);
+  const data: Record<string, Array<{step: number; prompt: string; flux_output_file: string; qwen_output_file: string}>> = {};
+
+  for (let i = 1; i < lines.length; i++) {
+    const values = parseCSVLine(lines[i]);
+    if (values.length === headers.length) {
+      const country = values[0];
+      if (!data[country]) {
+        data[country] = [];
+      }
+
+      const step = parseInt(values[1]);
+      data[country].push({
+        step,
+        prompt: values[2],
+        flux_output_file: values[3],
+        qwen_output_file: values[4],
+      });
+    }
+  }
+
+  return data;
+}
+
+// Create AttributionQuestion from parsed data
+export function createAttributionQuestion(country: string, attributionData: Array<{step: number; prompt: string; flux_output_file: string; qwen_output_file: string}>): AttributionQuestion {
+  const steps: AttributionStep[] = attributionData
+    .sort((a, b) => a.step - b.step)
+    .map(item => ({
+      step: item.step,
+      image_path: item.qwen_output_file,
+      url: `https://ecb-pub.s3.us-east-2.amazonaws.com/${item.qwen_output_file}`,
+      prompt: item.prompt,
+      label: `Step ${item.step}`,
+    }));
+
+  return {
+    id: `attribution-${country}`,
+    country,
+    base_image: 'base.png',
+    steps,
+    current_step: 0,
+    total_steps: steps.length,
+  };
 }
 
 export function parseCsvLine(line: string): SurveyItem | null {
