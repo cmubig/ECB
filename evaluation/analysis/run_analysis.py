@@ -41,8 +41,8 @@ def run_core_analysis():
     script_path = os.path.join(script_dir, "core", "core_metrics.py")
 
     try:
-        print("
-🔍 Running core metrics analysis..."        result = subprocess.run([sys.executable, script_path], check=True, capture_output=True, text=True)
+        print("🔍 Running core metrics analysis...")
+        result = subprocess.run([sys.executable, script_path], check=True, capture_output=True, text=True)
         print("✅ Core metrics analysis completed")
         return True
     except subprocess.CalledProcessError as e:
@@ -58,8 +58,8 @@ def run_summary_analysis():
     script_path = os.path.join(script_dir, "core", "summary_heatmap.py")
 
     try:
-        print("
-🔍 Running summary heatmap analysis..."        result = subprocess.run([sys.executable, script_path], check=True, capture_output=True, text=True)
+        print("🔍 Running summary heatmap analysis...")
+        result = subprocess.run([sys.executable, script_path], check=True, capture_output=True, text=True)
         print("✅ Summary heatmap analysis completed")
         return True
     except subprocess.CalledProcessError as e:
@@ -115,8 +115,8 @@ def check_data_availability(models):
 def main():
     """Main function to run all analyses."""
     parser = argparse.ArgumentParser(description='Run IASEAI26 analysis scripts')
-    parser.add_argument('--models', nargs='+', default=['flux', 'hidream', 'qwen'],
-                        help='Models to analyze (default: flux hidream qwen)')
+    parser.add_argument('--models', nargs='+', default=['flux', 'hidream', 'qwen', 'sd35'],
+                        help='Models to analyze (default: flux hidream qwen sd35)')
     parser.add_argument('--analysis-type', choices=['all', 'single', 'multi', 'core'],
                         default='all', help='Type of analysis to run')
     parser.add_argument('--single-type', choices=['cultural', 'general'],
@@ -146,8 +146,8 @@ def main():
                 success_count += 1
 
     if args.analysis_type == 'all' or args.analysis_type == 'core':
-        print("
-📈 Running core analyses..."        total_count += 1
+        print("📈 Running core analyses...")
+        total_count += 1
         if run_core_analysis():
             success_count += 1
 
@@ -156,8 +156,8 @@ def main():
             success_count += 1
 
     if args.analysis_type == 'all' or args.analysis_type == 'multi':
-        print("
-🔍 Running multi-model comparisons..."        total_count += 1
+        print("🔍 Running multi-model comparisons...")
+        total_count += 1
         if run_multi_model_analysis("cultural"):
             success_count += 1
 
@@ -165,8 +165,7 @@ def main():
         if run_multi_model_analysis("general"):
             success_count += 1
 
-    print("
-" + "=" * 60)
+    print("\n" + "=" * 60)
     print(f"🎉 Analysis pipeline completed! ({success_count}/{total_count} successful)")
     print("📁 Check the respective output directories for results:")
     print("   - Individual model charts: <model_name>_*_charts/")

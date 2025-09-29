@@ -595,6 +595,9 @@ def main():
         },
         'qwen': {
             'general_summary_path': os.path.join(base_path, 'qwen', 'general_metrics_summary.csv')
+        },
+        'sd35': {
+            'general_summary_path': os.path.join(base_path, 'sd35', 'general_metrics_summary.csv')
         }
     }
     

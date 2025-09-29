@@ -1,0 +1,9 @@
+SD35 General Performance:
+- Avg CLIP Score: 24.27
+- Avg Aesthetic Score: 5.45
+- Total evaluations: 468
+
+SD35 Cultural Performance:
+- Avg F1 Score: 0.332
+- Avg Accuracy: 0.611
+- Total evaluations: 2802

@@ -645,6 +645,10 @@ def main():
         'qwen': {
             'cultural_metrics_path': os.path.join(base_path, 'qwen', 'cultural_metrics.csv'),
             'cultural_summary_path': os.path.join(base_path, 'qwen', 'cultural_metrics_summary.csv')
+        },
+        'sd35': {
+            'cultural_metrics_path': os.path.join(base_path, 'sd35', 'cultural_metrics.csv'),
+            'cultural_summary_path': os.path.join(base_path, 'sd35', 'cultural_metrics_summary.csv')
         }
     }
     
