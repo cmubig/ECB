@@ -4,6 +4,11 @@ venv/
 env/
 ENV/
 
+./ecb-human-survey/firebase.json
+./ecb-human-survey/firestore.rules
+./ecb-human-survey/firestore.indexes.json
+./ecb-human-survey/firebase-admin-key.json
+
 # Python cache files
 __pycache__/
 *.py[cod]
@@ -16,8 +21,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
 parts/
 sdist/
 var/
@@ -51,13 +54,6 @@ Thumbs.db
 .coverage
 htmlcov/
 
-# Data files (if not needed in repo)
-*.csv
-*.xlsx
-*.xls
-*.json
-*.yaml
-*.yml
 
 # Temporary files
 *.bak

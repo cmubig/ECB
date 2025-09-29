@@ -1,0 +1,4 @@
+prompt,editing_prompt,step0_path,step1_path,step3_path,step5_path
+"House in Korea","Change the image to represent a Korean house.",qwen/base/house_korea_base.png,qwen/edit_1/house_korea_edit1.png,qwen/edit_3/house_korea_edit3.png,qwen/edit_5/house_korea_edit5.png
+"Temple in Japan","Change the image to represent a Japanese temple.",qwen/base/temple_japan_base.png,qwen/edit_1/temple_japan_edit1.png,qwen/edit_3/temple_japan_edit3.png,qwen/edit_5/temple_japan_edit5.png
+"Market in India","Change the image to represent an Indian market.",qwen/base/market_india_base.png,qwen/edit_1/market_india_edit1.png,qwen/edit_3/market_india_edit3.png,qwen/edit_5/market_india_edit5.png
