@@ -42,7 +42,7 @@ export function ModelTabs({ selectedCountry, initialModel }: ModelTabsProps) {
           </TabsTrigger>
         ))}
       </TabsList>
-      
+
       {MODELS.map((model) => (
         <TabsContent key={model.id} value={model.id}>
           <ModelSurvey model={model.id} country={selectedCountry} />

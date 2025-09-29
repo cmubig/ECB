@@ -4,7 +4,6 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
 import { ImageStep } from '@/types/survey';
 import { getImageUrl } from '@/lib/data-processor';
 
@@ -30,9 +29,6 @@ export function ImageGallery({
   currentImageKey,
 }: ImageGalleryProps) {
   const [loadingImages, setLoadingImages] = useState<Set<number>>(new Set(images.map(img => img.step)));
-  const [imageStates, setImageStates] = useState<Record<number, 'loading' | 'loaded' | 'error'>>(
-    Object.fromEntries(images.map(img => [img.step, 'loading']))
-  );
   const imageKey = currentImageKey || `gallery-${Date.now()}`;
 
   const handleImageLoad = (step: number) => {
@@ -41,7 +37,6 @@ export function ImageGallery({
       newSet.delete(step);
       return newSet;
     });
-    setImageStates(prev => ({ ...prev, [step]: 'loaded' }));
   };
 
   const handleImageError = (step: number) => {
@@ -50,7 +45,6 @@ export function ImageGallery({
       newSet.delete(step);
       return newSet;
     });
-    setImageStates(prev => ({ ...prev, [step]: 'error' }));
   };
 
   const handleImageClick = (step: number) => {
