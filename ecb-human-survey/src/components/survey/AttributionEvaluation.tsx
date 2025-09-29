@@ -259,7 +259,7 @@ export function AttributionEvaluation({
                           {step.step}
                         </div>
                         <div className="text-2xl font-semibold text-gray-800">
-                          Step {step.step}
+                          Prompt {step.step}
                         </div>
                       </div>
                       <div className="max-w-4xl mx-auto">
