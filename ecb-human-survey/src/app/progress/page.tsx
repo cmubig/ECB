@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { getUserProgress, getUserResponses } from '@/lib/firestore';
-import { UserProgress, SurveyResponse } from '@/types/survey';
+import { getUserProgress, getUserResponses, getAttributionResponses } from '@/lib/firestore';
+import { UserProgress, SurveyResponse, AttributionResponse } from '@/types/survey';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -17,6 +17,7 @@ export default function ProgressPage() {
   const { user, loading: authLoading } = useAuth();
   const [progress, setProgress] = useState<UserProgress | null>(null);
   const [responses, setResponses] = useState<SurveyResponse[]>([]);
+  const [attributionResponses, setAttributionResponses] = useState<AttributionResponse[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,13 +31,15 @@ export default function ProgressPage() {
 
     try {
       setLoading(true);
-      const [userProgress, userResponses] = await Promise.all([
+      const [userProgress, userResponses, attributionResponses] = await Promise.all([
         getUserProgress(user.uid),
         getUserResponses(user.uid),
+        getAttributionResponses(user.uid).catch(() => []) // Attribution responses might not exist
       ]);
 
       setProgress(userProgress);
       setResponses(userResponses);
+      setAttributionResponses(attributionResponses);
     } catch (error) {
       console.error('Error loading user data:', error);
     } finally {
@@ -69,8 +72,8 @@ export default function ProgressPage() {
     ? Math.round((progress.completed_questions.length / progress.total_questions) * 100)
     : 0;
 
-  const averagePromptAlignment = responses.length > 0
-    ? responses.reduce((sum, r) => sum + r.prompt_alignment, 0) / responses.length
+  const averageImageQuality = responses.length > 0
+    ? responses.reduce((sum, r) => sum + r.image_quality, 0) / responses.length
     : 0;
 
   const averageCulturalScore = responses.length > 0
@@ -120,6 +123,18 @@ export default function ProgressPage() {
               {completionPercentage}% complete
             </p>
             
+            {attributionResponses.length > 0 && (
+              <div className="pt-4 border-t">
+                <div className="flex justify-between text-sm">
+                  <span>Attribution Evaluations</span>
+                  <span>{attributionResponses.length} completed</span>
+                </div>
+                <div className="text-sm text-gray-600">
+                  Countries: {[...new Set(attributionResponses.map(r => r.country))].join(', ')}
+                </div>
+              </div>
+            )}
+            
             {progress && progress.completed_questions.length < progress.total_questions && (
               <div className="pt-4">
                 <Link href="/survey">
@@ -144,11 +159,11 @@ export default function ProgressPage() {
 
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Avg. Prompt Alignment</CardTitle>
+                <CardTitle className="text-lg">Avg. Image Quality</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-green-600">
-                  {averagePromptAlignment.toFixed(1)}
+                  {averageImageQuality.toFixed(1)}
                 </div>
                 <div className="text-sm text-gray-600">out of 5</div>
               </CardContent>
@@ -190,9 +205,14 @@ export default function ProgressPage() {
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                 {Object.entries(modelCounts).map(([model, count]) => (
                   <div key={model} className="text-center space-y-2">
-                    <Badge variant="secondary" className="w-full justify-center">
-                      {model}
-                    </Badge>
+                    <div className="space-y-1">
+                      <Badge variant="secondary" className="w-full justify-center">
+                        {model}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs text-blue-600 border-blue-300 bg-blue-50">
+                        Multi-loop edit
+                      </Badge>
+                    </div>
                     <div className="text-2xl font-bold">{count}</div>
                   </div>
                 ))}
@@ -222,6 +242,53 @@ export default function ProgressPage() {
           </Card>
         )}
 
+        {/* Attribution Evaluation Results */}
+        {attributionResponses.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Attribution Evaluation Results</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {attributionResponses.map((response, index) => (
+                  <div key={index} className="border rounded-lg p-4 space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="secondary">Attribution</Badge>
+                      <Badge variant="outline" className="text-purple-700 border-purple-300 bg-purple-50">Attribute addition</Badge>
+                      <Badge variant="outline">{formatCountryName(response.country)}</Badge>
+                      <Badge variant="outline">{response.steps ? Object.keys(response.steps).length : 0} Steps</Badge>
+                    </div>
+                    
+                    {response.steps && Object.entries(response.steps).map(([stepNum, stepData]) => (
+                      <div key={stepNum} className="bg-gray-50 rounded-lg p-3 space-y-2">
+                        <div className="font-medium text-sm">Step {stepNum}: {stepData.prompt}</div>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <div className="font-medium text-gray-600">FLUX.1 Kontext [dev]</div>
+                            <div className="space-y-1">
+                              <div>Prompt Alignment: {stepData.flux_prompt_alignment}/5</div>
+                              <div>Cultural Rep: {stepData.flux_cultural_representation}/5</div>
+                              <div>Image Quality: {stepData.flux_image_quality}/5</div>
+                            </div>
+                          </div>
+                          <div>
+                            <div className="font-medium text-gray-600">Qwen-Image-Edit</div>
+                            <div className="space-y-1">
+                              <div>Prompt Alignment: {stepData.qwen_prompt_alignment}/5</div>
+                              <div>Cultural Rep: {stepData.qwen_cultural_representation}/5</div>
+                              <div>Image Quality: {stepData.qwen_image_quality}/5</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Recent Responses */}
         {responses.length > 0 && (
           <Card>
@@ -239,7 +306,7 @@ export default function ProgressPage() {
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
-                        <span className="font-medium">Prompt Alignment:</span> {response.prompt_alignment}/5
+                        <span className="font-medium">Image Quality:</span> {response.image_quality}/5
                       </div>
                       <div>
                         <span className="font-medium">Cultural Score:</span> {response.cultural_representative}/5

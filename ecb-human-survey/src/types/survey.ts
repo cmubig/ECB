@@ -48,14 +48,14 @@ export interface SurveyResponse {
   prompt: string;
   editing_prompt: string;
   image_urls: string[];
-  prompt_alignment: number; // 1-5
+  image_quality: number; // 1-5
   cultural_representative: number; // 1-5
   best_step: number; // 0, 1, 3, 5
   worst_step: number; // 0, 1, 3, 5
   comments?: string;
   timestamp: Date;
   completion_time_seconds: number;
-  imageRatings?: Record<number, { step: number; promptAlignment: number; culturalRepresentative: number; }>; // Individual image ratings
+  imageRatings?: Record<number, { step: number; imageQuality: number; culturalRepresentative: number; }>; // Individual image ratings
 }
 
 // New interface for individual step responses
@@ -72,7 +72,7 @@ export interface StepResponse {
   prompt: string;
   editing_prompt: string;
   image_url: string;
-  prompt_alignment: number; // 1-5
+  image_quality: number; // 1-5
   cultural_representative: number; // 1-5
   is_best: boolean;
   is_worst: boolean;
@@ -108,4 +108,46 @@ export interface SurveyStats {
   responses_by_country: Record<string, number>;
   average_completion_time: number;
   unique_users: number;
+}
+
+// Attribution-based evaluation types
+export interface AttributionStep {
+  step: number;
+  image_path: string;
+  url: string;
+  flux_url: string;
+  qwen_url: string;
+  prompt: string;
+  label: string;
+}
+
+export interface AttributionQuestion {
+  id: string;
+  country: string;
+  base_image: string;
+  steps: AttributionStep[]; // step 1, 2, 3, 4, 5
+  current_step: number;
+  total_steps: number;
+}
+
+export interface AttributionResponse {
+  question_id: string;
+  user_id: string;
+  country: string;
+  base_image: string;
+  step_responses: Record<number, {
+    step: number;
+    prompt: string;
+    flux_url: string;
+    qwen_url: string;
+    flux_prompt_alignment: number; // 1-5
+    flux_cultural_representation: number; // 1-5
+    flux_image_quality: number; // 1-5
+    qwen_prompt_alignment: number; // 1-5
+    qwen_cultural_representation: number; // 1-5
+    qwen_image_quality: number; // 1-5
+  }>;
+  comments?: string;
+  timestamp: Date;
+  completion_time_seconds: number;
 }

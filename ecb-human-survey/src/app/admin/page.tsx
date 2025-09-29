@@ -11,8 +11,26 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Download, Database } from 'lucide-react';
 import { toast } from 'sonner';
 
-const MODELS = ['flux', 'hidream', 'nextstep', 'qwen', 'sd35'];
+const MODELS = [
+  { id: 'flux', name: 'FLUX.1 Kontext [dev]', experimentType: 'Multi-loop edit' },
+  { id: 'hidream', name: 'HiDream-E1.1', experimentType: 'Multi-loop edit' },
+  { id: 'nextstep', name: 'NextStep-1-Large-Edit', experimentType: 'Multi-loop edit' },
+  { id: 'qwen', name: 'Qwen-Image-Edit', experimentType: 'Multi-loop edit' },
+  { id: 'sd35', name: 'Stable Diffusion 3.5 Medium', experimentType: 'Multi-loop edit' }
+];
 const COUNTRIES = ['China', 'India', 'Kenya', 'Korea', 'Nigeria', 'United States'];
+
+// Function to get display name for model
+const getModelDisplayName = (modelId: string): string => {
+  const model = MODELS.find(m => m.id === modelId);
+  return model ? model.name : modelId;
+};
+
+// Function to get experiment type for model
+const getModelExperimentType = (modelId: string): string => {
+  const model = MODELS.find(m => m.id === modelId);
+  return model ? model.experimentType : '';
+};
 
 // Admin emails (you can configure this)
 const ADMIN_EMAILS = ['your-admin-email@gmail.com']; // Replace with actual admin emails
@@ -115,7 +133,7 @@ export default function AdminPage() {
         `"${response.editing_prompt}"`,
         response.image_url,
         response.cultural_representative,
-        response.prompt_alignment,
+        response.image_quality,
         response.is_best,
         response.is_worst,
         response.comments ? `"${response.comments}"` : '',
@@ -215,8 +233,8 @@ export default function AdminPage() {
                   <SelectContent>
                     <SelectItem value="all">All Models</SelectItem>
                     {MODELS.map(model => (
-                      <SelectItem key={model} value={model}>
-                        {model.toUpperCase()}
+                      <SelectItem key={model.id} value={model.id}>
+                        {model.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -346,9 +364,16 @@ export default function AdminPage() {
                       <tr key={index} className="border-b">
                         <td className="p-2 font-mono text-xs">{response.uid}</td>
                         <td className="p-2">{response.step}</td>
-                        <td className="p-2">{response.model}</td>
+                        <td className="p-2">
+                          <div className="space-y-1">
+                            <div className="font-medium">{getModelDisplayName(response.model)}</div>
+                            <Badge variant="outline" className="text-xs text-blue-600 border-blue-300 bg-blue-50">
+                              {getModelExperimentType(response.model)}
+                            </Badge>
+                          </div>
+                        </td>
                         <td className="p-2">{response.country}</td>
-                        <td className="p-2">{response.prompt_alignment}</td>
+                        <td className="p-2">{response.image_quality}</td>
                         <td className="p-2">{response.cultural_representative}</td>
                         <td className="p-2">{response.is_best ? '✓' : ''}</td>
                         <td className="p-2">{response.is_worst ? '✓' : ''}</td>

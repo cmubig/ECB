@@ -6,19 +6,65 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
-import { getUserProgress } from '@/lib/firestore';
+import { getUserProgress, getAttributionResponses } from '@/lib/firestore';
 import { getTotalQuestionsForModel } from '@/lib/dataset-loader';
 import { UserProgress } from '@/types/survey';
-import { Loader2, Play, CheckCircle } from 'lucide-react';
+import { Loader2, Play, CheckCircle, Users, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 
-const MODELS = [
-  { id: 'flux', name: 'Flux', description: 'Advanced diffusion model' },
-  { id: 'hidream', name: 'HiDream', description: 'High-quality image generation' },
-  { id: 'nextstep', name: 'NextStep', description: 'Next-generation AI model' },
-  { id: 'qwen', name: 'Qwen', description: 'Multimodal AI system' },
-  { id: 'sd35', name: 'SD3.5', description: 'Stable Diffusion 3.5' },
+// Multi-loop edit models
+const MULTI_LOOP_MODELS = [
+  { 
+    id: 'flux', 
+    name: 'FLUX.1 Kontext [dev]', 
+    description: 'Black Forest Labs',
+    experimentType: 'Multi-loop edit'
+  },
+  { 
+    id: 'hidream', 
+    name: 'HiDream-E1.1', 
+    description: 'HiDream AI',
+    experimentType: 'Multi-loop edit'
+  },
+  { 
+    id: 'nextstep', 
+    name: 'NextStep-1-Large-Edit', 
+    description: 'StepFun AI',
+    experimentType: 'Multi-loop edit'
+  },
+  { 
+    id: 'qwen', 
+    name: 'Qwen-Image-Edit', 
+    description: 'Alibaba Cloud',
+    experimentType: 'Multi-loop edit'
+  },
+  { 
+    id: 'sd35', 
+    name: 'Stable Diffusion 3.5 Medium', 
+    description: 'Stability AI',
+    experimentType: 'Multi-loop edit'
+  },
 ];
+
+// Attribute addition models (for Attribution Evaluation)
+const ATTRIBUTE_ADDITION_MODELS = [
+  { 
+    id: 'flux', 
+    name: 'FLUX.1 Kontext [dev]', 
+    description: 'Black Forest Labs',
+    experimentType: 'Attribute addition'
+  },
+  { 
+    id: 'qwen', 
+    name: 'Qwen-Image-Edit', 
+    description: 'Alibaba Cloud',
+    experimentType: 'Attribute addition'
+  },
+];
+
+// For backward compatibility, use multi-loop models as default
+const MODELS = MULTI_LOOP_MODELS;
+
 
 // This will be loaded from actual CSV data
 
@@ -28,9 +74,10 @@ interface ModelProgressProps {
   description: string;
   completed: number;
   total: number;
+  experimentType?: string;
 }
 
-function ModelProgressCard({ modelId, modelName, description, completed, total }: ModelProgressProps) {
+function ModelProgressCard({ modelId, modelName, description, completed, total, experimentType }: ModelProgressProps) {
   const progressPercentage = total > 0 ? (completed / total) * 100 : 0;
   const isCompleted = completed >= total;
   const isComingSoon = total === 0;
@@ -42,6 +89,11 @@ function ModelProgressCard({ modelId, modelName, description, completed, total }
           <div>
             <CardTitle className="text-lg font-medium">{modelName}</CardTitle>
             <p className="text-sm text-gray-600 mt-1">{description}</p>
+            {experimentType && (
+              <Badge variant="outline" className="text-blue-700 border-blue-300 bg-blue-50 mt-2 text-xs">
+                {experimentType}
+              </Badge>
+            )}
           </div>
           {isComingSoon ? (
             <Badge variant="outline" className="text-orange-700 border-orange-300 bg-orange-50">
@@ -55,47 +107,108 @@ function ModelProgressCard({ modelId, modelName, description, completed, total }
           ) : null}
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {isComingSoon ? (
-          <div className="text-center py-4">
-            <p className="text-sm text-gray-500">Data coming soon</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Progress</span>
-              <span className="font-medium">{completed} / {total}</span>
+      <CardContent className="flex flex-col justify-between h-full">
+        <div className="space-y-4">
+          {isComingSoon ? (
+            <div className="text-center py-4">
+              <p className="text-sm text-gray-500">Data coming soon</p>
             </div>
-            <Progress value={progressPercentage} className="h-2" />
-            <p className="text-xs text-gray-500">
-              {total - completed} questions remaining
-            </p>
-          </div>
-        )}
+          ) : (
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Progress</span>
+                <span className="font-medium">{completed} / {total}</span>
+              </div>
+              <Progress value={progressPercentage} className="h-2" />
+              <p className="text-xs text-gray-500">
+                
+              </p>
+            </div>
+          )}
+        </div>
         
-        <Link href={`/survey?model=${modelId}`}>
-          <Button 
-            className="w-full bg-gray-900 hover:bg-gray-800 text-white"
-            disabled={isCompleted || isComingSoon}
-          >
-            {isCompleted ? (
-              <>
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Completed
-              </>
-            ) : isComingSoon ? (
-              <>
+        <div className="mt-auto">
+          <Link href={`/survey?model=${modelId}`}>
+            <Button 
+              className="w-full bg-gray-900 hover:bg-gray-800 text-white"
+              disabled={isCompleted || isComingSoon}
+            >
+              {isCompleted ? (
+                <>
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Completed
+                </>
+              ) : isComingSoon ? (
+                <>
+                  <Play className="w-4 h-4 mr-2" />
+                  Coming Soon
+                </>
+              ) : (
+                <>
+                  <Play className="w-4 h-4 mr-2" />
+                  {completed > 0 ? 'Continue' : 'Start'} Evaluation
+                </>
+              )}
+            </Button>
+          </Link>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+interface AttributionProgressProps {
+  completed: boolean;
+}
+
+function AttributionProgressCard({ completed }: AttributionProgressProps) {
+  return (
+    <Card className="border-gray-200 shadow-none hover:shadow-sm transition-shadow">
+      <CardHeader className="pb-3">
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle className="text-lg font-medium">Attribution Evaluation</CardTitle>
+            <p className="text-sm text-gray-600 mt-1">Evaluate cultural attribute additions</p>
+            <Badge variant="outline" className="text-purple-700 border-purple-300 bg-purple-50 mt-2 text-xs">
+              Attribute addition
+            </Badge>
+          </div>
+          {completed ? (
+            <Badge variant="outline" className="text-green-700 border-green-300 bg-green-50">
+              <CheckCircle className="w-3 h-3 mr-1" />
+              Complete
+            </Badge>
+          ) : null}
+        </div>
+      </CardHeader>
+      <CardContent className="flex flex-col justify-between h-full">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <ImageIcon className="w-4 h-4" />
+            <span>Base image transformation</span>
+          </div>
+        </div>
+        
+        <div className="mt-auto">
+          {completed ? (
+            <Button 
+              className="w-full bg-gray-500 text-white cursor-not-allowed"
+              disabled={true}
+            >
+              <CheckCircle className="w-4 h-4 mr-2" />
+              Completed
+            </Button>
+          ) : (
+            <Link href="/attribution">
+              <Button 
+                className="w-full bg-gray-900 hover:bg-gray-800 text-white"
+              >
                 <Play className="w-4 h-4 mr-2" />
-                Coming Soon
-              </>
-            ) : (
-              <>
-                <Play className="w-4 h-4 mr-2" />
-                {completed > 0 ? 'Continue' : 'Start'} Evaluation
-              </>
-            )}
-          </Button>
-        </Link>
+                Start Attribution Evaluation
+              </Button>
+            </Link>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
@@ -109,6 +222,7 @@ export function ProgressDashboard({ country }: ProgressDashboardProps) {
   const { user } = useAuth();
   const [progress, setProgress] = useState<UserProgress | null>(null);
   const [modelQuestionCounts, setModelQuestionCounts] = useState<Record<string, number>>({});
+  const [attributionCompleted, setAttributionCompleted] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -117,7 +231,7 @@ export function ProgressDashboard({ country }: ProgressDashboardProps) {
       
       setLoading(true);
       try {
-        // Load user progress and question counts in parallel
+        // Load user progress, question counts, and attribution responses in parallel
         const [userProgress, ...questionCounts] = await Promise.all([
           getUserProgress(user.uid),
           ...MODELS.map(model => getTotalQuestionsForModel(model.id, country))
@@ -131,6 +245,15 @@ export function ProgressDashboard({ country }: ProgressDashboardProps) {
           counts[model.id] = questionCounts[index];
         });
         setModelQuestionCounts(counts);
+        
+        // Check attribution completion
+        try {
+          const attributionResponses = await getAttributionResponses(user.uid);
+          setAttributionCompleted(attributionResponses.length > 0);
+        } catch (error) {
+          console.warn('Could not load attribution responses:', error);
+          setAttributionCompleted(false);
+        }
         
       } catch (error) {
         console.error('Error loading data:', error);
@@ -179,7 +302,7 @@ export function ProgressDashboard({ country }: ProgressDashboardProps) {
       {/* Model Progress Cards */}
       <div>
         <h3 className="text-lg font-medium mb-4">Model Evaluations</h3>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
           {MODELS.map((model) => {
             const completed = progress?.completed_by_model[model.id]?.length || 0;
             const total = modelQuestionCounts[model.id] || 0;
@@ -191,9 +314,11 @@ export function ProgressDashboard({ country }: ProgressDashboardProps) {
                 description={model.description}
                 completed={completed}
                 total={total}
+                experimentType={model.experimentType}
               />
             );
           })}
+          <AttributionProgressCard completed={attributionCompleted} />
         </div>
       </div>
 
