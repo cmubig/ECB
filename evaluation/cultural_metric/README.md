@@ -1,22 +1,22 @@
 # Cultural Metric Pipeline
 
-이미지 생성 결과가 특정 국가 문화를 얼마나 잘 반영했는지 자동으로 평가하는 RAG 기반 지표입니다. 위키피디아 등에서 모은 PDF를 지식 베이스로 구축한 뒤, 질문 생성 LLM과 오픈소스 VLM을 조합해 예/아니오 검증 질문을 만들고 답변을 받아 점수를 계산합니다.
+This is a RAG-based metric that automatically evaluates how well image generation results reflect the culture of a specific country. It builds a knowledge base from PDFs collected from Wikipedia, etc., then combines question generation LLM and open-source VLM to create yes/no verification questions and calculate scores based on the answers.
 
-기본 설정으로는 한 이미지를 대상으로 6~8개의 질문을 만들고, 그 중 최소 2개는 "나타나면 안 되는 요소"를 검사하도록 강제하여 분별력을 높입니다.
+By default, it creates 6-8 questions for one image, and at least 2 of them are forced to check for "elements that should not appear" to increase discrimination.
 
-## 디렉터리 구조
+## Directory Structure
 
 ```
 evaluation/cultural_metric/
-├── build_cultural_index.py      # PDF → FAISS 지식 베이스 변환 스크립트
-├── cultural_metric_pipeline.py  # RAG + VLM 평가 파이프라인
-├── legacy/                      # 이전 실험 스크립트 및 결과 보관
-├── requirements.txt             # 의존성 목록
+├── build_cultural_index.py      # PDF to FAISS knowledge base conversion script
+├── cultural_metric_pipeline.py  # RAG + VLM evaluation pipeline
+├── legacy/                      # Previous experiment scripts and results storage
+├── requirements.txt             # Dependencies list
 ├── README.md
-└── vector_store/                # (생성됨) FAISS 인덱스 + 메타데이터
+└── vector_store/                # (Generated) FAISS index + metadata
 ```
 
-## 1. 의존성 설치
+## 1. Install Dependencies
 
 ```bash
 cd /Users/chan/Downloads/iaseai26/evaluation/cultural_metric
@@ -25,9 +25,9 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-> GPU 서버에서 돌릴 때는 환경에 맞는 `torch` 빌드를 따로 설치하세요.
+> When running on a GPU server, install the appropriate `torch` build for your environment separately.
 
-## 2. 지식 베이스 구축
+## 2. Build Knowledge Base
 
 ```bash
 python build_cultural_index.py \
@@ -36,9 +36,9 @@ python build_cultural_index.py \
   --model-name sentence-transformers/all-MiniLM-L6-v2
 ```
 
-`vector_store/` 아래에 `faiss.index`, `metadata.jsonl`, `index_config.json`이 생성됩니다.
+`faiss.index`, `metadata.jsonl`, `index_config.json` are created under `vector_store/`.
 
-## 3. 문화 지표 수동 실행 예시
+## 3. Manual Cultural Metric Execution Example
 
 ```bash
 python cultural_metric_pipeline.py \
@@ -56,23 +56,23 @@ python cultural_metric_pipeline.py \
   --load-in-4bit
 ```
 
-생성되는 결과:
-- `*_summary.csv`: 이미지별 정확도/정밀도/재현율/F1.
-- `*_detail.csv`: 질문·기대 정답·VLM 응답·근거 텍스트를 포함한 세부 로그.
+Generated results:
+- `*_summary.csv`: Accuracy/Precision/Recall/F1 per image.
+- `*_detail.csv`: Detailed log including questions, expected answers, VLM responses, and evidence text.
 
-보통 `evaluation/run_all_metrics.py` 또는 `./run_evaluation.sh`를 실행하면 이 스크립트를 자동으로 호출해 `evaluation/outputs/<모델>/` 아래에 CSV를 저장합니다.
+Usually, running `evaluation/run_all_metrics.py` or `./run_evaluation.sh` will automatically call this script and save CSV files under `evaluation/outputs/<model>/`.
 
-## 사람 평가와 비교하는 방법
+## How to Compare with Human Evaluation
 
-1. `cultural_metrics_*_summary.csv`를 기존 CLIP/Aesthetic/DreamSim/휴먼 평가와 머지.
-2. prompt 단위로 F1이 가장 높은/낮은 스텝을 골라 휴먼 Best/Worst와 일치율 계산.
-3. Spearman 상관, Top-1 매칭, 오차 사례 분석 등 통계를 정리.
-4. 필요 시 `*_detail.csv`에서 반복적으로 틀리는 질문을 찾아 프롬프트나 질의 템플릿을 수정.
+1. Merge `cultural_metrics_*_summary.csv` with existing CLIP/Aesthetic/DreamSim/human evaluations.
+2. Select the step with the highest/lowest F1 for each prompt and calculate the match rate with human Best/Worst.
+3. Organize statistics such as Spearman correlation, Top-1 matching, error case analysis, etc.
+4. If necessary, find frequently wrong questions in `*_detail.csv` and modify prompts or query templates.
 
-## 참고 사항
+## Notes
 
-- VLM이 `AutoProcessor.apply_chat_template`를 지원해야 합니다. 별도 API를 쓰는 모델은 `cultural_metric_pipeline.py`의 `VLMClient` 부분을 교체하세요.
-- 다른 임베딩 모델을 쓰고 싶다면 `build_cultural_index.py` 실행 시 `--model-name`을 변경하고, 생성된 `index_config.json`을 함께 보관하세요.
-- `legacy/` 폴더에는 0926 실험용 통합 스크립트, 분석 스크립트, 예전 결과 CSV가 보관되어 있습니다. 필요하면 참조하고, 신규 파이프라인과는 독립적으로 유지됩니다.
+- VLM must support `AutoProcessor.apply_chat_template`. For models using separate APIs, replace the `VLMClient` part in `cultural_metric_pipeline.py`.
+- If you want to use a different embedding model, change `--model-name` when running `build_cultural_index.py` and keep the generated `index_config.json` together.
+- The `legacy/` folder contains integrated scripts for 0926 experiments, analysis scripts, and old result CSVs. Refer to them if needed, and keep them independent of the new pipeline.
 
-행복한 평가 되세요!
+Happy evaluating!

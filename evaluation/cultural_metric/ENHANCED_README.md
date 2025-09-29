@@ -1,91 +1,91 @@
 # Enhanced Cultural Metric Pipeline
 
-## 🚀 주요 개선사항
+## 🚀 Key Improvements
 
-### ✅ 해결된 문제들
-1. **맥락 없는 질문 생성** → **메타데이터 기반 질문 생성**
-2. **Best/Worst 선택 미흡** → **VLM 기반 그룹 평가**
-3. **중간 중단 시 재시작** → **체크포인트 기반 재시작**
-4. **느린 실행 속도** → **배치 처리 및 최적화**
-5. **LLM 응답 실패** → **Enhanced Heuristic 백업**
+### ✅ Resolved Issues
+1. **Context-free question generation** → **Metadata-driven question generation**
+2. **Poor Best/Worst selection** → **VLM-based group evaluation**
+3. **No restart on interruption** → **Checkpoint-based restart**
+4. **Slow execution speed** → **Batch processing and optimization**
+5. **LLM response failures** → **Enhanced Heuristic backup**
 
-### 📈 성능 향상
-- **60% 빠른 처리**: 체크포인트 재시작 + 최적화된 배치 처리
-- **90% 더 나은 질문**: 메타데이터 기반 맥락적 질문 생성
-- **100% 신뢰성**: 자동 체크포인트 저장으로 중단 시에도 안전
+### 📈 Performance Improvements
+- **60% faster processing**: Checkpoint restart + optimized batch processing
+- **90% better questions**: Metadata-driven contextual question generation
+- **100% reliability**: Automatic checkpoint saving ensures safety during interruptions
 
-## 🎯 새로운 기능들
+## 🎯 New Features
 
-### 1. 메타데이터 기반 질문 생성
+### 1. Metadata-Driven Question Generation
 ```python
-# 기존 (맥락 없음)
+# Before (no context)
 "Does the image show cultural elements for China?"
 
-# 개선 (메타데이터 활용)
+# After (with metadata)
 "Does the traditional architecture show authentic Chinese building materials and decorative elements typical of historical construction?"
 ```
 
-**활용되는 메타데이터:**
-- `model`: flux, hidream, sd35 등
+**Metadata utilized:**
+- `model`: flux, hidream, sd35, etc.
 - `country`: china, india, kenya, nigeria, korea, united_states
 - `category`: architecture, art, event, fashion, food, landscape, people, wildlife
 - `sub_category`: house, landmark, dance, painting, festival, clothing, etc.
 - `variant`: traditional, modern, general
 
-### 2. 체크포인트 기반 재시작
+### 2. Checkpoint-Based Restart
 ```bash
-# 중간에 중단되어도 걱정 없음
+# No worries about interruptions
 ./run_evaluation.sh --models flux --resume
 
-# 체크포인트 정보 확인
+# Checkpoint information
 [CHECKPOINT] Saved at sample 1247/2808
 [RESUME] Found checkpoint with 1247 completed samples
 [PROCESSING] 1561 samples remaining
 ```
 
-### 3. Enhanced Best/Worst 선택
+### 3. Enhanced Best/Worst Selection
 ```python
-# VLM이 그룹 내 6개 이미지를 동시에 평가
+# VLM evaluates 6 images in a group simultaneously
 {
-  "best_image": 3,  # step2가 가장 문화적으로 적합
-  "worst_image": 1, # step0이 가장 부적절
+  "best_image": 3,  # step2 is most culturally appropriate
+  "worst_image": 1, # step0 is most inappropriate
   "reasoning": "Image 3 shows authentic traditional Chinese architecture with proper cultural elements, while Image 1 contains Western architectural influences inappropriate for traditional Chinese buildings."
 }
 ```
 
-### 4. 카테고리별 전문 템플릿
+### 4. Category-Specific Expert Templates
 ```python
-# Architecture Traditional 전용 질문들
+# Architecture Traditional specific questions
 "Does the architecture show traditional {country} building styles and materials?"
 "Are there modern Western architectural elements that contradict traditional {country} design?"
 
-# Food Modern 전용 질문들  
+# Food Modern specific questions
 "Does the food represent contemporary {country} cuisine and dining trends?"
 "Does the dish reflect current {country} culinary innovations and preferences?"
 ```
 
-## 🔧 사용법
+## 🔧 Usage
 
-### 기본 실행 (Enhanced Pipeline)
+### Basic Execution (Enhanced Pipeline)
 ```bash
-# 모든 모델 평가 (체크포인트 자동 활성화)
+# Evaluate all models (checkpoints automatically enabled)
 ./run_evaluation.sh
 
-# 특정 모델만 평가
+# Evaluate specific models only
 ./run_evaluation.sh --models flux hidream
 
-# 디버그 모드로 실행
+# Run in debug mode
 CULTURAL_DEBUG=1 ./run_evaluation.sh --models flux
 
-# 강제 재계산 (체크포인트 무시)
+# Force recalculation (ignore checkpoints)
 ./run_evaluation.sh --force --no-resume
 ```
 
-### 직접 파이프라인 실행
+### Direct Pipeline Execution
 ```bash
 cd evaluation/cultural_metric
 
-# Enhanced Pipeline (권장)
+# Enhanced Pipeline (recommended)
 python enhanced_cultural_metric_pipeline.py \
     --input-csv ../generated_csv/flux/img_paths_standard.csv \
     --image-root ../../dataset \
@@ -95,7 +95,7 @@ python enhanced_cultural_metric_pipeline.py \
     --resume \
     --save-frequency 5
 
-# Legacy Pipeline (비교용)
+# Legacy Pipeline (for comparison)
 python cultural_metric_pipeline.py \
     --input-csv ../generated_csv/flux/img_paths_standard.csv \
     --image-root ../../dataset \
@@ -104,19 +104,19 @@ python cultural_metric_pipeline.py \
     --index-dir ./vector_store
 ```
 
-### 체크포인트 관리
+### Checkpoint Management
 ```bash
-# 체크포인트 디렉토리 확인
+# Check checkpoint directory
 ls evaluation/cultural_metric/checkpoints/
 
-# 체크포인트 삭제 (처음부터 다시 시작)
+# Delete checkpoints (start fresh)
 rm evaluation/cultural_metric/checkpoints/*_checkpoint.pkl
 
-# 특정 모델 체크포인트만 삭제
+# Delete specific model checkpoint only
 rm evaluation/cultural_metric/checkpoints/flux_checkpoint.pkl
 ```
 
-## 📊 출력 결과
+## 📊 Output Results
 
 ### Enhanced Summary CSV
 ```csv
@@ -125,11 +125,11 @@ flux_china_architecture_house_general::step0,flux_china_architecture_house_gener
 flux_china_architecture_house_general::step2,flux_china_architecture_house_general,step2,china,architecture,house,general,0.92,0.95,0.89,0.92,8,11.8,model,True,False
 ```
 
-**새로운 컬럼들:**
-- `category`, `sub_category`, `variant`: 메타데이터 정보
+**New columns:**
+- `category`, `sub_category`, `variant`: Metadata information
 - `question_source`: model/enhanced_heuristic/fallback
-- `is_best`, `is_worst`: VLM 그룹 평가 결과
-- `processing_time`: 샘플당 처리 시간
+- `is_best`, `is_worst`: VLM group evaluation results
+- `processing_time`: Processing time per sample
 
 ### Enhanced Detail CSV
 ```csv
@@ -137,43 +137,43 @@ uid,group_id,step,country,category,sub_category,variant,question,expected_answer
 flux_china_architecture_house_general::step0,flux_china_architecture_house_general,step0,china,architecture,house,general,"Does the architecture show traditional Chinese building styles and materials?",yes,no,"Template-based question for architecture general in china"
 ```
 
-## ⚡ 성능 최적화 팁
+## ⚡ Performance Optimization Tips
 
-### 1. 배치 크기 조정
+### 1. Batch Size Adjustment
 ```bash
-# 메모리가 충분한 경우 (권장하지 않음 - 안정성 이슈)
+# If you have sufficient memory (not recommended - stability issues)
 python enhanced_cultural_metric_pipeline.py --batch-size 4
 
-# 안전한 설정 (기본값)
+# Safe setting (default)
 python enhanced_cultural_metric_pipeline.py --batch-size 1
 ```
 
-### 2. 체크포인트 빈도 조정
+### 2. Checkpoint Frequency Adjustment
 ```bash
-# 자주 저장 (안전, 약간 느림)
+# Save more frequently (safe, slightly slower)
 --save-frequency 5
 
-# 덜 저장 (빠름, 약간 위험)
+# Save less frequently (faster, slightly riskier)
 --save-frequency 20
 ```
 
-### 3. 양자화 옵션
+### 3. Quantization Options
 ```bash
-# 메모리 절약 (약간 느림)
+# Memory saving (slightly slower)
 ./run_evaluation.sh --load-in-8bit
 
-# 더 많은 메모리 절약 (느림)
+# More memory saving (slower)
 ./run_evaluation.sh --load-in-4bit
 ```
 
-## 🔍 디버깅
+## 🔍 Debugging
 
-### 실행 중 모니터링
+### Runtime Monitoring
 ```bash
-# 실시간 진행상황 확인
+# Check real-time progress
 tail -f evaluation/outputs/flux/cultural_metrics_*_summary.csv
 
-# 체크포인트 상태 확인
+# Check checkpoint status
 python -c "
 import pickle
 with open('evaluation/cultural_metric/checkpoints/flux_checkpoint.pkl', 'rb') as f:
@@ -183,39 +183,39 @@ with open('evaluation/cultural_metric/checkpoints/flux_checkpoint.pkl', 'rb') as
 "
 ```
 
-### 일반적인 문제 해결
+### Common Problem Solutions
 ```bash
-# 1. CUDA 메모리 부족
+# 1. CUDA memory shortage
 export CUDA_VISIBLE_DEVICES=0
 ./run_evaluation.sh --load-in-8bit
 
-# 2. 체크포인트 손상
+# 2. Corrupted checkpoint
 rm evaluation/cultural_metric/checkpoints/*_checkpoint.pkl
 ./run_evaluation.sh --no-resume
 
-# 3. 질문 생성 실패가 많은 경우
+# 3. Too many question generation failures
 CULTURAL_DEBUG=1 ./run_evaluation.sh --models flux
 ```
 
-## 📈 예상 처리 시간
+## 📈 Expected Processing Time
 
-| 모델 | 샘플 수 | 기존 시간 | Enhanced 시간 | 개선율 |
-|------|---------|-----------|---------------|--------|
-| flux | ~1,400 | 4시간 | 1.5시간 | 62% 단축 |
-| hidream | ~1,400 | 4시간 | 1.5시간 | 62% 단축 |
-| sd35 | ~1,400 | 4시간 | 1.5시간 | 62% 단축 |
-| **전체 5모델** | **~7,000** | **20시간** | **7.5시간** | **62% 단축** |
+| Model | Sample Count | Legacy Time | Enhanced Time | Improvement |
+|-------|--------------|-------------|---------------|-------------|
+| flux | ~1,400 | 4 hours | 1.5 hours | 62% faster |
+| hidream | ~1,400 | 4 hours | 1.5 hours | 62% faster |
+| sd35 | ~1,400 | 4 hours | 1.5 hours | 62% faster |
+| **All 5 models** | **~7,000** | **20 hours** | **7.5 hours** | **62% faster** |
 
-*실제 시간은 하드웨어와 네트워크 상황에 따라 달라질 수 있습니다.*
+*Actual times may vary depending on hardware and network conditions.*
 
-## 🎉 결론
+## 🎉 Conclusion
 
-Enhanced Cultural Metric Pipeline은 다음을 제공합니다:
+The Enhanced Cultural Metric Pipeline provides:
 
-1. **더 정확한 평가**: 메타데이터 기반 맥락적 질문 생성
-2. **더 빠른 처리**: 체크포인트 재시작과 최적화된 워크플로우
-3. **더 신뢰할 수 있는 실행**: 자동 체크포인트와 오류 복구
-4. **더 나은 Best/Worst 선택**: VLM 기반 그룹 비교 평가
-5. **더 쉬운 디버깅**: 상세한 로깅과 모니터링
+1. **More accurate evaluation**: Metadata-driven contextual question generation
+2. **Faster processing**: Checkpoint restart and optimized workflow
+3. **More reliable execution**: Automatic checkpoints and error recovery
+4. **Better Best/Worst selection**: VLM-based group comparison evaluation
+5. **Easier debugging**: Detailed logging and monitoring
 
-이제 5개 모델 평가를 안전하고 빠르게 완료할 수 있습니다! 🚀
+You can now safely and quickly complete evaluations for all 5 models! 🚀
