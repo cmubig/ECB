@@ -191,13 +191,13 @@ export function SurveyQuestion({
   };
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto px-4 md:px-6">
       <Card className="border-gray-200 shadow-none">
         {/* Header */}
         <CardHeader className="pb-6">
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col md:flex-row justify-between items-start gap-4">
             <div className="flex-1">
-              <CardTitle className="text-xl mb-3">
+              <CardTitle className="text-lg md:text-xl mb-3">
                 {question.category || 'Unknown'} - {question.sub_category || 'Unknown'}
                 {question.variant && ` (${question.variant})`}
               </CardTitle>
@@ -208,7 +208,7 @@ export function SurveyQuestion({
                 )}
               </div>
             </div>
-            <Badge variant="outline" className="ml-4">
+            <Badge variant="outline" className="md:ml-4 self-start">
               {question.model?.toUpperCase() || 'Unknown Model'}
             </Badge>
           </div>
@@ -221,7 +221,7 @@ export function SurveyQuestion({
               No images available for this question.
             </div>
           ) : (
-            <div className="grid grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 md:gap-6">
               {question.images.map((img, index) => {
                 const rating = imageRatings[img.step];
                 
@@ -229,14 +229,14 @@ export function SurveyQuestion({
                   <div key={`${img.step}-${imageKey}`} className="space-y-4">
                     {/* Image */}
                     <div className={cn(
-                      "relative border-2 rounded-lg overflow-hidden transition-all duration-300 ease-in-out",
+                      "relative border-2 rounded-lg overflow-hidden transition-all duration-300 ease-in-out aspect-square",
                       bestStep === img.step ? "border-emerald-400 ring-4 ring-emerald-200 shadow-2xl shadow-emerald-100/60 bg-emerald-50/30" :
                       worstStep === img.step ? "border-rose-300 ring-4 ring-rose-200 shadow-2xl shadow-rose-100/60 bg-rose-50/30" :
                       "border-gray-200 hover:shadow-lg hover:scale-[1.02]"
                     )}>
                       {/* Enhanced loading skeleton with shimmer effect */}
                       {loadingImages.has(img.step) && (
-                        <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite] aspect-square" />
                       )}
 
                       {/* Image with smooth transitions */}
@@ -246,7 +246,7 @@ export function SurveyQuestion({
                         alt={`Image ${index + 1}`}
                         width={300}
                         height={300}
-                        className={`w-full h-48 object-cover transition-all duration-300 ease-in-out transform ${
+                        className={`w-full aspect-square object-cover transition-all duration-300 ease-in-out transform ${
                           loadingImages.has(img.step)
                             ? 'opacity-0 scale-95'
                             : 'opacity-100 scale-100'
@@ -364,19 +364,19 @@ export function SurveyQuestion({
           )}
 
           {/* Best/Worst Selection */}
-          <div className="space-y-6 bg-gray-50 p-6 rounded-lg">
-            <h3 className="text-lg font-medium text-center text-gray-800">
+          <div className="space-y-6 bg-gray-50 p-4 md:p-6 rounded-lg">
+            <h3 className="text-base md:text-lg font-medium text-center text-gray-800">
             Which image is best and worst?
             </h3>
             
-            <div className="grid grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 lg:gap-8">
               {/* Best Selection */}
               <div className="space-y-3">
                 <div className="flex items-center justify-center gap-2 text-gray-700">
                   <ThumbsUp className="w-5 h-5" />
                   <span className="font-medium">Best</span>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-2 gap-2">
                   {question.images?.map((img, index) => (
                     <Button
                       key={`best-${img.step}`}
@@ -401,7 +401,7 @@ export function SurveyQuestion({
                   <ThumbsDown className="w-5 h-5" />
                   <span className="font-medium">Worst</span>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-2 gap-2">
                   {question.images?.map((img, index) => (
                     <Button
                       key={`worst-${img.step}`}
@@ -452,25 +452,26 @@ export function SurveyQuestion({
           </div> */}
 
           {/* Navigation */}
-          <div className="flex justify-between items-center pt-6 border-t">
+          <div className="flex flex-col md:flex-row justify-between items-center pt-6 border-t gap-4">
             <Button
               variant="outline"
               onClick={onPrevious}
               disabled={isFirst || isSubmitting}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 w-full md:w-auto"
             >
               <ArrowLeft className="w-4 h-4" />
               Previous
             </Button>
             
-            <div className="text-center text-sm text-gray-600">
-              <div>Rate each image individually, then select overall best and worst</div>
+            <div className="text-center text-sm text-gray-600 order-first md:order-none">
+              <div className="hidden md:block">Rate each image individually, then select overall best and worst</div>
+              <div className="md:hidden">Rate each image, then select best and worst</div>
             </div>
             
             <Button
               onClick={handleSubmit}
               disabled={isSubmitting || bestStep === null || worstStep === null}
-              className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800"
+              className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 w-full md:w-auto"
             >
               {isSubmitting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

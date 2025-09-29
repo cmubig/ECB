@@ -12,10 +12,7 @@
 
 # testing
 /coverage
-./ecb-human-survey/firebase.json
-./ecb-human-survey/firestore.rules
-./ecb-human-survey/firestore.indexes.json
-./ecb-human-survey/firebase-admin-key.json
+
 
 # next.js
 /.next/
