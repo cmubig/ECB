@@ -25,6 +25,13 @@ service cloud.firestore {
       allow list: if request.auth != null;
     }
     
+    // Users can create attribution responses and read their own
+    match /attribution_responses/{responseId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null && request.auth.uid == resource.data.user_id;
+      allow list: if request.auth != null;
+    }
+    
     // Public read access to global stats
     match /survey_stats/{document} {
       allow read: if true;

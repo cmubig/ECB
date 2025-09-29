@@ -13,7 +13,7 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { SurveyResponse, UserProgress, SurveyStats, UserProfile, StepResponse } from '@/types/survey';
+import { SurveyResponse, UserProgress, SurveyStats, UserProfile, StepResponse, AttributionResponse } from '@/types/survey';
 
 // Collections
 const RESPONSES_COLLECTION = 'survey_responses';
@@ -21,6 +21,7 @@ const STEP_RESPONSES_COLLECTION = 'step_responses'; // New collection for indivi
 const PROGRESS_COLLECTION = 'user_progress';
 const STATS_COLLECTION = 'survey_stats';
 const PROFILES_COLLECTION = 'user_profiles';
+const ATTRIBUTION_RESPONSES_COLLECTION = 'attribution_responses';
 
 export async function saveSurveyResponse(response: Omit<SurveyResponse, 'timestamp'>): Promise<string> {
   try {
@@ -38,16 +39,62 @@ export async function saveSurveyResponse(response: Omit<SurveyResponse, 'timesta
 // Save individual step responses (for detailed analysis like cultural_metrics_summary.csv)
 export async function saveStepResponses(stepResponses: Omit<StepResponse, 'timestamp'>[]): Promise<void> {
   try {
-    const batch = stepResponses.map(stepResponse => 
+    const batch = stepResponses.map(stepResponse =>
       addDoc(collection(db, STEP_RESPONSES_COLLECTION), {
         ...stepResponse,
         timestamp: serverTimestamp(),
       })
     );
-    
+
     await Promise.all(batch);
   } catch (error) {
     console.error('Error saving step responses:', error);
+    throw error;
+  }
+}
+
+export async function saveAttributionResponse(response: Omit<AttributionResponse, 'timestamp' | 'completion_time_seconds'>): Promise<string> {
+  try {
+    const docRef = await addDoc(collection(db, ATTRIBUTION_RESPONSES_COLLECTION), {
+      ...response,
+      timestamp: serverTimestamp(),
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Error saving attribution response:', error);
+    throw error;
+  }
+}
+
+export async function getAttributionResponses(userId?: string, country?: string): Promise<AttributionResponse[]> {
+  try {
+    let q = query(collection(db, ATTRIBUTION_RESPONSES_COLLECTION));
+
+    if (userId) {
+      q = query(q, where('user_id', '==', userId));
+    }
+    if (country) {
+      q = query(q, where('country', '==', country));
+    }
+
+    q = query(q, orderBy('timestamp', 'desc'));
+
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        question_id: data.question_id,
+        user_id: data.user_id,
+        country: data.country,
+        base_image: data.base_image,
+        step_responses: data.step_responses,
+        comments: data.comments,
+        timestamp: data.timestamp?.toDate() || new Date(),
+        completion_time_seconds: data.completion_time_seconds,
+      } as AttributionResponse;
+    });
+  } catch (error) {
+    console.error('Error getting attribution responses:', error);
     throw error;
   }
 }
@@ -82,7 +129,7 @@ export async function getStepResponses(userId?: string, model?: string): Promise
         prompt: data.prompt,
         editing_prompt: data.editing_prompt,
         image_url: data.image_url,
-        prompt_alignment: data.prompt_alignment,
+        image_quality: data.image_quality,
         cultural_representative: data.cultural_representative,
         is_best: data.is_best,
         is_worst: data.is_worst,
