@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { ImageStep } from '@/types/survey';
 import { getImageUrl } from '@/lib/data-processor';
 
@@ -26,7 +27,7 @@ export function ImageGallery({
   onWorstSelect,
   showSelectionMode = false,
 }: ImageGalleryProps) {
-  const [loadingImages, setLoadingImages] = useState<Set<number>>(new Set());
+  const [loadingImages, setLoadingImages] = useState<Set<number>>(new Set(images.map(img => img.step)));
 
   const handleImageLoad = (step: number) => {
     setLoadingImages(prev => {
@@ -76,17 +77,17 @@ export function ImageGallery({
 
   const getCardClassName = (step: number) => {
     let className = "relative cursor-pointer transition-all duration-200 hover:shadow-lg";
-    
+
     if (showSelectionMode) {
       if (selectedBest === step) {
-        className += " ring-2 ring-green-500 shadow-lg";
+        className += " ring-4 ring-emerald-400 shadow-lg shadow-emerald-200/50";
       } else if (selectedWorst === step) {
-        className += " ring-2 ring-red-500 shadow-lg";
+        className += " ring-4 ring-rose-300 shadow-lg shadow-rose-200/50";
       } else {
         className += " hover:ring-2 hover:ring-blue-300";
       }
     }
-    
+
     return className;
   };
 
@@ -101,15 +102,15 @@ export function ImageGallery({
           <CardContent className="p-2">
             <div className="relative aspect-square mb-2">
               {loadingImages.has(image.step) && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-                </div>
+                <Skeleton className="absolute inset-0 rounded" />
               )}
               <Image
                 src={getImageUrl(image.image_path, model)}
                 alt={image.label}
                 fill
-                className="object-cover rounded"
+                className={`object-cover rounded transition-opacity duration-300 ${
+                  loadingImages.has(image.step) ? 'opacity-0' : 'opacity-100'
+                }`}
                 onLoad={() => handleImageLoad(image.step)}
                 onError={() => handleImageError(image.step)}
                 sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
@@ -117,12 +118,12 @@ export function ImageGallery({
               
               {/* Selection badges */}
               {selectedBest === image.step && (
-                <Badge className="absolute top-1 right-1 bg-green-500 text-white">
+                <Badge className="absolute top-1 right-1 bg-emerald-400 text-white border-emerald-500">
                   Best
                 </Badge>
               )}
               {selectedWorst === image.step && (
-                <Badge className="absolute top-1 right-1 bg-red-500 text-white">
+                <Badge className="absolute top-1 right-1 bg-rose-300 text-white border-rose-400">
                   Worst
                 </Badge>
               )}

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Loader2, ArrowLeft, ArrowRight, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { SurveyQuestion as SurveyQuestionType, SurveyResponse } from '@/types/survey';
 import { toast } from 'sonner';
@@ -49,6 +50,7 @@ export function SurveyQuestion({
   const [comments, setComments] = useState(initialResponse?.comments || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [startTime, setStartTime] = useState(Date.now());
+  const [loadingImages, setLoadingImages] = useState<Set<number>>(new Set(question.images?.map(img => img.step) || []));
 
   // Initialize ratings for each image
   useEffect(() => {
@@ -89,6 +91,22 @@ export function SurveyQuestion({
     setComments(initialResponse?.comments || '');
     setStartTime(Date.now());
   }, [question.id, question.images, initialResponse]);
+
+  const handleImageLoad = (step: number) => {
+    setLoadingImages(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(step);
+      return newSet;
+    });
+  };
+
+  const handleImageError = (step: number) => {
+    setLoadingImages(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(step);
+      return newSet;
+    });
+  };
 
   const handleBestSelect = (step: number) => {
     setBestStep(step);
@@ -208,16 +226,23 @@ export function SurveyQuestion({
                     {/* Image */}
                     <div className={cn(
                       "relative border-2 rounded-lg overflow-hidden transition-all",
-                      bestStep === img.step ? "border-gray-800 ring-4 ring-gray-300 shadow-lg" :
-                      worstStep === img.step ? "border-gray-600 ring-4 ring-gray-200 shadow-lg" :
+                      bestStep === img.step ? "border-emerald-400 ring-4 ring-emerald-200 shadow-lg shadow-emerald-100/50" :
+                      worstStep === img.step ? "border-rose-300 ring-4 ring-rose-200 shadow-lg shadow-rose-100/50" :
                       "border-gray-200"
                     )}>
+                      {loadingImages.has(img.step) && (
+                        <Skeleton className="absolute inset-0" />
+                      )}
                       <Image
                         src={img.url}
                         alt={`Image ${index + 1}`}
                         width={300}
                         height={300}
-                        className="w-full h-48 object-cover"
+                        className={`w-full h-48 object-cover transition-opacity duration-300 ${
+                          loadingImages.has(img.step) ? 'opacity-0' : 'opacity-100'
+                        }`}
+                        onLoad={() => handleImageLoad(img.step)}
+                        onError={() => handleImageError(img.step)}
                       />
                       
                       {/* Image number */}
@@ -231,14 +256,14 @@ export function SurveyQuestion({
                       {/* Best/Worst indicator */}
                       {bestStep === img.step && (
                         <div className="absolute top-2 right-2">
-                          <Badge className="bg-gray-800 text-white text-xs">
+                          <Badge className="bg-emerald-400 text-white text-xs border-emerald-500">
                             👍 BEST
                           </Badge>
                         </div>
                       )}
                       {worstStep === img.step && (
                         <div className="absolute top-2 right-2">
-                          <Badge className="bg-gray-600 text-white text-xs">
+                          <Badge className="bg-rose-300 text-white text-xs border-rose-400">
                             👎 WORST
                           </Badge>
                         </div>

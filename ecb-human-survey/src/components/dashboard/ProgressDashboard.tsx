@@ -34,6 +34,7 @@ interface ModelProgressProps {
 function ModelProgressCard({ modelId, modelName, description, completed, total, country }: ModelProgressProps) {
   const progressPercentage = total > 0 ? (completed / total) * 100 : 0;
   const isCompleted = completed >= total;
+  const isComingSoon = total === 0;
 
   return (
     <Card className="border-gray-200 shadow-none hover:shadow-sm transition-shadow">
@@ -43,35 +44,50 @@ function ModelProgressCard({ modelId, modelName, description, completed, total, 
             <CardTitle className="text-lg font-medium">{modelName}</CardTitle>
             <p className="text-sm text-gray-600 mt-1">{description}</p>
           </div>
-          {isCompleted && (
+          {isComingSoon ? (
+            <Badge variant="outline" className="text-orange-700 border-orange-300 bg-orange-50">
+              Soon
+            </Badge>
+          ) : isCompleted ? (
             <Badge variant="outline" className="text-green-700 border-green-300 bg-green-50">
               <CheckCircle className="w-3 h-3 mr-1" />
               Complete
             </Badge>
-          )}
+          ) : null}
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Progress</span>
-            <span className="font-medium">{completed} / {total}</span>
+        {isComingSoon ? (
+          <div className="text-center py-4">
+            <p className="text-sm text-gray-500">Data coming soon</p>
           </div>
-          <Progress value={progressPercentage} className="h-2" />
-          <p className="text-xs text-gray-500">
-            {total - completed} questions remaining
-          </p>
-        </div>
+        ) : (
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Progress</span>
+              <span className="font-medium">{completed} / {total}</span>
+            </div>
+            <Progress value={progressPercentage} className="h-2" />
+            <p className="text-xs text-gray-500">
+              {total - completed} questions remaining
+            </p>
+          </div>
+        )}
         
         <Link href={`/survey?model=${modelId}`}>
           <Button 
             className="w-full bg-gray-900 hover:bg-gray-800 text-white"
-            disabled={isCompleted}
+            disabled={isCompleted || isComingSoon}
           >
             {isCompleted ? (
               <>
                 <CheckCircle className="w-4 h-4 mr-2" />
                 Completed
+              </>
+            ) : isComingSoon ? (
+              <>
+                <Play className="w-4 h-4 mr-2" />
+                Coming Soon
               </>
             ) : (
               <>

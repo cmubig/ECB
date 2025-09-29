@@ -38,7 +38,7 @@ export function useSingleModelSurveyData(selectedModel: string, selectedCountry:
       const csvModelName = MODEL_TO_CSV_NAME[selectedModel] || selectedModel;
       
       // Load CSV data for the selected model
-      const response = await fetch(`/dataset/${csvModelName}/prompt-img-path.csv`);
+      const response = await fetch(`/dataset/${csvModelName}/prompt-img-path_s3.csv`);
       if (!response.ok) {
         if (response.status === 404) {
           setError(`No data available for ${selectedModel.toUpperCase()} model yet. Please try another model.`);

@@ -21,7 +21,7 @@ export function useModelSurveyData(selectedCountry?: string) {
         
         for (const model of models) {
           try {
-            const response = await fetch(`/dataset/${model}/prompt-img-path.csv`);
+            const response = await fetch(`/dataset/${model}/prompt-img-path_s3.csv`);
             if (response.ok) {
               const csvText = await response.text();
               const lines = csvText.trim().split('\n');
