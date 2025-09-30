@@ -1,159 +1,147 @@
-# IASEAI26 Analysis Scripts
+# 📊 IASEAI26 Analysis - Clean & Organized Structure
 
-This directory contains scripts for analyzing the performance of various image generation models (Flux, HiDream, Qwen). It is organized in a systematic folder structure and provides an easy-to-use integrated execution interface.
+This directory contains comprehensive analysis tools and results for 5 image generation models (Flux, HiDream, NextStep, Qwen, SD35).
 
-## 📁 Folder Structure
+## 🗂️ Directory Structure
 
 ```
 analysis/
-├── core/                    # Core analysis scripts
-│   ├── core_metrics.py      # Basic metrics analysis
-│   └── summary_heatmap.py   # Summary heatmap generation
-├── single_model/            # Single model analysis scripts
-│   ├── single_model_cultural.py    # Single model cultural analysis
-│   └── single_model_general.py     # Single model general analysis
-├── multi_model_cultural_analysis.py    # Multi-model cultural comparison
-├── multi_model_general_analysis.py     # Multi-model general comparison
-├── run_analysis.py          # Integrated execution interface
-└── README.md               # This document
+├── 📁 scripts/                    # All analysis scripts
+│   ├── 📁 core/                   # Core analysis scripts
+│   │   ├── core_metrics.py        # Basic metrics analysis
+│   │   └── summary_heatmap.py     # Summary heatmap generation
+│   ├── 📁 single_model/           # Single model analysis scripts
+│   │   ├── single_model_cultural.py    # Cultural metrics analysis
+│   │   └── single_model_general.py     # General metrics analysis
+│   ├── 📁 utils/                  # Utility scripts
+│   ├── multi_model_cultural_analysis.py    # Multi-model cultural comparison
+│   ├── multi_model_general_analysis.py     # Multi-model general comparison
+│   └── run_analysis.py            # Main execution interface
+├── 📁 results/                    # All analysis results
+│   ├── 📁 individual/             # Individual model charts
+│   │   ├── flux_cultural_charts/      # Flux cultural analysis (13 charts)
+│   │   ├── flux_general_charts/       # Flux general analysis (6 charts)
+│   │   ├── hidream_cultural_charts/   # HiDream cultural analysis (13 charts)
+│   │   ├── hidream_general_charts/    # HiDream general analysis (6 charts)
+│   │   ├── nextstep_cultural_charts/  # NextStep cultural analysis (13 charts)
+│   │   ├── nextstep_general_charts/   # NextStep general analysis (6 charts)
+│   │   ├── qwen_cultural_charts/      # Qwen cultural analysis (13 charts)
+│   │   ├── qwen_general_charts/       # Qwen general analysis (6 charts)
+│   │   ├── sd35_cultural_charts/      # SD35 cultural analysis (13 charts)
+│   │   └── sd35_general_charts/       # SD35 general analysis (6 charts)
+│   ├── 📁 comparison/             # Multi-model comparison charts
+│   │   ├── multi_model_charts/        # Cultural comparison charts
+│   │   └── multi_model_general_charts/ # General comparison charts
+│   └── 📁 summary/                 # Summary charts
+│       └── charts/                    # Core metrics summary (5 charts)
+└── 📁 docs/                      # Documentation
+    ├── README.md                      # This file
+    └── README_cultural_analysis.md    # Cultural analysis guide
 ```
 
-### 📂 Detailed Description
+## 🚀 Quick Start
 
-#### `core/` - Core Analysis Scripts
-- **core_metrics.py**: Basic metrics analysis for all models (best steps, country-specific performance, etc.)
-- **summary_heatmap.py**: Summary heatmap generation for all models
-
-#### `single_model/` - Single Model Analysis Scripts
-- **single_model_cultural.py**: Cultural metrics analysis for specific models
-- **single_model_general.py**: General metrics analysis for specific models
-
-#### Root Level Scripts
-- **multi_model_*.py**: Multi-model comparison analysis
-- **run_analysis.py**: Main interface for integrated execution of all analyses
-
-## 🚀 Usage
-
-### 1. Integrated Execution (Recommended)
-
+### Run All Analyses
 ```bash
-# Run all analyses at once
+cd /Users/chan/ECB/evaluation/analysis/scripts
 python3 run_analysis.py
+```
 
-# Run specific types of analysis only
-python3 run_analysis.py --analysis-type single --single-type cultural --models flux qwen
+### Run Specific Analysis Types
+```bash
+# Individual model analysis
+python3 run_analysis.py --analysis-type single --single-type cultural --models flux nextstep
+
+# Multi-model comparison
 python3 run_analysis.py --analysis-type multi
+
+# Core summary analysis
 python3 run_analysis.py --analysis-type core
 ```
 
-### 2. Individual Script Execution
+## 📊 Analysis Types
 
-```bash
-# Single model analysis
-python3 single_model/single_model_cultural.py flux
-python3 single_model/single_model_general.py hidream
+### 1. Individual Model Analysis
+- **Cultural Metrics**: Country-specific performance, cultural bias analysis
+- **General Metrics**: CLIP scores, aesthetic scores, step analysis
+- **Charts**: 13 cultural + 6 general charts per model
 
-# Core analysis
-python3 core/core_metrics.py
-python3 core/summary_heatmap.py
+### 2. Multi-Model Comparison
+- **Cultural Comparison**: Cross-model cultural performance comparison
+- **General Comparison**: CLIP/aesthetic score comparison across models
+- **Charts**: Organized comparison charts with detailed breakdowns
 
-# Multi-model comparison
-python3 multi_model_cultural_analysis.py
-python3 multi_model_general_analysis.py
-```
+### 3. Core Summary Analysis
+- **Overall Metrics**: Best steps, country performance, step progression
+- **Summary Heatmaps**: Visual overview of all models
+- **Charts**: 5 summary charts with key insights
 
-### 3. Command Line Options
+## 🎯 Key Features
 
-```bash
-python3 run_analysis.py --help
+- **5 Models**: Flux, HiDream, NextStep, Qwen, SD35
+- **6 Countries**: China, India, Kenya, Korea, Nigeria, United States
+- **7 Categories**: Architecture, Art, Event, Fashion, Food, Landscape, Wildlife
+- **Multiple Variants**: Traditional, Modern, General, National, Common
+- **Step Analysis**: Performance across generation steps
+- **Bias Detection**: Cultural bias analysis and recommendations
 
-# Available options:
-# --models: Models to analyze (default: flux hidream qwen)
-# --analysis-type: Analysis type (all, single, multi, core)
-# --single-type: Single model analysis type (cultural, general)
-```
+## 📈 Chart Categories
 
-## 📊 Output Results
+### Cultural Analysis Charts (13 per model)
+1. Country Performance Heatmap
+2. Category Performance by Country
+3. Step Performance Analysis
+4. Variant Performance Comparison
+5. Processing Time Analysis
+6. Image Quality Analysis
+7. Best/Worst Distribution
+8. Cultural vs Prompt Alignment
+9. Advanced Country-Step Heatmaps
+10. Processing VLM Performance Heatmaps
+11. Comprehensive Category Analysis Heatmaps
+12. Variant Performance Comparison Heatmaps
+13. Step Progression Analysis Heatmaps
 
-### Individual Model Analysis Results
-- `<model_name>_cultural_charts/` - Cultural metrics visualization (13 charts)
-- `<model_name>_general_charts/` - General metrics visualization (6 charts)
+### General Analysis Charts (6 per model)
+1. Performance Distribution
+2. Country Performance
+3. Step Analysis
+4. Category Performance
+5. CLIP vs Aesthetic Scatter
+6. Advanced Heatmaps
 
-### Multi-Model Comparison Results
-- `multi_model_cultural_charts/` - Cultural metrics comparison visualization
-- `multi_model_general_charts/` - General metrics comparison visualization
-
-### Summary Analysis Results
-- `charts/` - Basic metrics analysis visualization
+### Multi-Model Comparison Charts
+- Overview Comparison
+- Country Analysis
+- Step Analysis
+- Category Analysis
+- Quality Metrics
+- Detailed Heatmaps
 
 ## 🔧 Requirements
 
 - Python 3.8+
-- pandas
-- matplotlib
-- seaborn
-- numpy
+- pandas, matplotlib, seaborn, numpy
 
-## 📝 Analysis Content
-
-### Cultural Metrics Analysis
-- Country-specific performance analysis and bias detection
-- Category-specific performance analysis
-- Step-by-step performance analysis
-- Image quality metrics (cultural representation, prompt alignment)
-- Cultural bias analysis
-
-### General Metrics Analysis
-- CLIP score analysis (image-text similarity)
-- Aesthetic score analysis (aesthetic quality)
-- Optimal step analysis
-- Category-specific performance comparison
-- Country-specific performance comparison
-
-## 🎯 Key Features
-
-1. **Model-specific Analysis**: Identify strengths and weaknesses of each model
-2. **Multi-model Comparison**: Compare relative performance between models
-3. **Visualization**: Generate 20+ types of charts and heatmaps
-4. **Automation**: Provide integrated execution interface
-5. **Flexibility**: Easy structure for adding new models
-
-## 📈 Analysis Results Interpretation
-
-### Performance Metrics
-- **CLIP Score**: Image-text similarity (higher is better, 0-100)
-- **Aesthetic Score**: Aesthetic quality of images (higher is better, 1-10)
-- **Cultural Representative**: Cultural representation score (1-5)
-- **Prompt Alignment**: Alignment between prompt and image (1-5)
-- **F1 Score**: Cultural classification accuracy (0-1)
-
-### Step Analysis
-- **Best Step**: Generation stage showing best performance for each metric
-- **Step Progression**: Performance change trends by stage
-
-### Bias Analysis
-- **Cultural Bias**: Analysis of performance differences by country
-- **Category Bias**: Analysis of performance variation by category
-
-## 🔍 Troubleshooting
-
-If you encounter errors during analysis:
-1. Check if the model's data files exist in `../output/<model_name>/`
-2. Verify that data file column names are correct (column names should start with lowercase)
-3. Ensure dependency packages are installed
-4. Confirm Python version is 3.8+
-
-## 🎉 Quick Start
+## 📝 Usage Examples
 
 ```bash
-# 1. Run all analyses (recommended)
-python3 run_analysis.py
+# Analyze specific models
+python3 run_analysis.py --models flux hidream --analysis-type single --single-type cultural
 
-# 2. Analyze specific models only
-python3 run_analysis.py --models qwen --analysis-type single --single-type cultural
-
-# 3. Run multi-model comparison only
+# Run multi-model comparison only
 python3 run_analysis.py --analysis-type multi
+
+# Run core analysis only
+python3 run_analysis.py --analysis-type core
 ```
 
-Now you can comprehensively analyze the performance of all IASEAI26 project models in a systematic and manageable structure! 📊✨
+## 🎉 Results
+
+All charts are automatically saved to the organized `results/` directory structure, making it easy to:
+- Compare individual model performance
+- Analyze multi-model comparisons
+- Access summary insights
+- Navigate results by analysis type
+
+The clean structure ensures easy navigation and maintenance! 🚀

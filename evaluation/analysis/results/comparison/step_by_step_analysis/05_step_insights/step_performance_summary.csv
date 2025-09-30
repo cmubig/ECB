@@ -1,0 +1,6 @@
+Model,Best F1 Step,Best F1 Score,Best Cultural Rep Step,Best Cultural Rep Score,Best CLIP Step,Best CLIP Score,Best Aesthetic Step,Best Aesthetic Score
+FLUX,1,1.000,0,5.00,1,31.9,0,5.70
+HIDREAM,0,1.000,0,5.00,3,33.1,0,5.71
+NEXTSTEP,0,1.000,3,5.00,0,31.3,1,5.70
+QWEN,1,1.000,0,5.00,5,32.4,1,5.71
+SD35,4,1.000,0,5.00,1,32.4,3,5.70

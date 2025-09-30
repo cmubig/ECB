@@ -1,10 +1,10 @@
-# ECB: Exposing Cultural Blindspots 🌍
-## A Structured Audit of Generative Image Models
+# Evaluation Cultural Bias 🌍
+## A Comprehensive Framework for Assessing Cultural Representation in Generative Image Models
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-This repository contains the implementation and evaluation framework for **ECB (Exposing Cultural Blindspots)**, an audit methodology for assessing cultural representation and bias in generative image models.
+This repository contains the implementation and evaluation framework for **Evaluation Cultural Bias (ECB)**, a comprehensive methodology for assessing cultural representation and bias in generative image models across multiple countries and cultural contexts.
 
 ## 🎯 Project Overview
 
@@ -42,9 +42,15 @@ ECB/
 │   ├── general_metric/            # Technical quality assessment
 │   │   └── multi_metric_evaluation.py           # CLIP, FID, LPIPS metrics
 │   ├── analysis/                  # Statistical analysis and visualization
-│   │   ├── cultural_analysis.py   # Cultural metrics analysis
-│   │   ├── general_metrics_analysis.py          # Technical metrics analysis
-│   │   └── multi_model_*_analysis.py            # Cross-model comparisons
+│   │   ├── scripts/               # All analysis scripts
+│   │   │   ├── core/              # Core analysis scripts
+│   │   │   ├── single_model/      # Individual model analysis
+│   │   │   ├── multi_model_*_analysis.py  # Cross-model comparisons
+│   │   │   └── run_analysis.py     # Main execution interface
+│   │   └── results/               # All analysis results
+│   │       ├── individual/        # Individual model charts (5 models × 2 types)
+│   │       ├── comparison/        # Multi-model comparison charts
+│   │       └── summary/           # Summary charts
 │   └── survey_app/                # Human evaluation interface
 │       ├── app.py                 # Flask web application
 │       └── responses/             # Human survey responses
@@ -142,10 +148,11 @@ python multi_metric_evaluation.py \
 ### 5. Generate Analysis Reports
 
 ```bash
-cd evaluation/analysis/
-python cultural_analysis.py --model flux
-python general_metrics_analysis.py --model flux
-python multi_model_cultural_analysis.py  # Cross-model comparison
+cd evaluation/analysis/scripts/
+python3 run_analysis.py  # Run all analyses
+python3 run_analysis.py --analysis-type single --single-type cultural --models flux
+python3 run_analysis.py --analysis-type multi  # Cross-model comparison
+python3 run_analysis.py --analysis-type core   # Summary analysis
 ```
 
 ## 📊 Evaluation Metrics
@@ -242,10 +249,9 @@ builder.build_index("custom_vector_store/")
 
 ```bash
 # Evaluate all models with cultural and general metrics
-python evaluation/run_all_metrics.py \
-    --models flux hidream qwen \
-    --max-samples 100 \
-    --output-dir results/
+cd evaluation/analysis/scripts/
+python3 run_analysis.py  # Run complete analysis for all 5 models
+python3 run_analysis.py --models flux hidream nextstep qwen sd35 --analysis-type all
 ```
 
 ### Human Survey Integration
@@ -267,10 +273,20 @@ npm run dev  # Start web interface on localhost:3000
 
 ### Visualization Outputs
 
-- **Heatmaps**: Country × Category performance matrices
-- **Radar Charts**: Multi-dimensional model comparisons  
-- **Progression Plots**: Editing step quality evolution
-- **Statistical Reports**: Performance summaries
+- **Individual Model Charts**: 13 cultural + 6 general charts per model (5 models total)
+- **Multi-Model Comparison**: Cross-model performance comparison charts
+- **Summary Charts**: Core metrics overview and insights
+- **Organized Structure**: Clean separation of scripts and results in `evaluation/analysis/`
+
+#### Analysis Structure
+```
+evaluation/analysis/
+├── scripts/           # All analysis scripts
+├── results/          # All generated charts
+│   ├── individual/   # Individual model results (5 models × 2 types)
+│   ├── comparison/   # Multi-model comparison charts
+│   └── summary/      # Summary and overview charts
+```
 
 ## 🤝 Contributing
 
@@ -317,4 +333,4 @@ For questions, issues, or collaboration:
 
 ---
 
-**ECB: Making Cultural Representation Visible, Measurable, and Improvable** 🌍
+**Evaluation Cultural Bias: Making Cultural Representation Visible, Measurable, and Improvable** 🌍
