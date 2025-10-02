@@ -296,6 +296,7 @@ export function AttributionEvaluation({
                             alt={`Flux Step ${step.step}`}
                             width={400}
                             height={400}
+                            unoptimized
                             className={`w-full h-64 object-contain bg-gray-100 transition-all duration-300 ease-in-out transform ${
                               loadingImages.has(step.step)
                                 ? 'opacity-0 scale-95'
@@ -437,6 +438,7 @@ export function AttributionEvaluation({
                             alt={`Qwen Step ${step.step}`}
                             width={400}
                             height={400}
+                            unoptimized
                             className={`w-full h-64 object-contain bg-gray-100 transition-all duration-300 ease-in-out transform ${
                               loadingImages.has(step.step)
                                 ? 'opacity-0 scale-95'

@@ -117,6 +117,7 @@ export function ImageGallery({
                 src={getImageUrl(image.image_path, model)}
                 alt={image.label}
                 fill
+                unoptimized
                 className={`object-cover transition-all duration-300 ease-in-out transform ${
                   loadingImages.has(image.step)
                     ? 'opacity-0 scale-95'

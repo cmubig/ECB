@@ -246,6 +246,7 @@ export function SurveyQuestion({
                         alt={`Image ${index + 1}`}
                         width={300}
                         height={300}
+                        unoptimized
                         className={`w-full aspect-square object-cover transition-all duration-300 ease-in-out transform ${
                           loadingImages.has(img.step)
                             ? 'opacity-0 scale-95'
