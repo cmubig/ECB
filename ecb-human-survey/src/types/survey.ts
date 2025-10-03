@@ -98,6 +98,7 @@ export interface UserProfile {
   email: string;
   display_name?: string;
   selected_country?: string;
+  consent?: boolean;
   created_at: Date;
   last_updated: Date;
 }

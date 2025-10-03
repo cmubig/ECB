@@ -45,7 +45,7 @@ export default function ProgressPage() {
     } finally {
       setLoading(false);
     }
-  }, [user?.uid]);
+  }, [user]);
 
   useEffect(() => {
     if (user) {

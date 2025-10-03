@@ -11,8 +11,9 @@ interface AuthContextType {
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
-  userProfile: { selected_country?: string } | null;
+  userProfile: { selected_country?: string; consent?: boolean } | null;
   updateUserCountry: (country: string) => Promise<void>;
+  updateUserConsent: (consent: boolean) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,6 +38,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               user_id: user.uid,
               email: user.email || '',
               display_name: user.displayName || '',
+            });
+            profile = await getUserProfile(user.uid);
+          }
+          
+          // Ensure consent field exists for existing users
+          if (profile && profile.consent === undefined) {
+            await updateUserProfile({
+              user_id: user.uid,
+              consent: false,
             });
             profile = await getUserProfile(user.uid);
           }
@@ -109,6 +119,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateUserConsent = async (consent: boolean) => {
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    try {
+      await updateUserProfile({
+        user_id: user.uid,
+        consent,
+      });
+      
+      // Update local state
+      setUserProfile(prev => ({
+        ...prev,
+        consent,
+      }));
+      
+    } catch (error) {
+      console.error('Error updating user consent:', error);
+      throw error;
+    }
+  };
+
   const value: AuthContextType = {
     user,
     loading,
@@ -116,6 +149,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout,
     userProfile,
     updateUserCountry,
+    updateUserConsent,
   };
 
   return (

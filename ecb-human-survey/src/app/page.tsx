@@ -6,21 +6,39 @@ import { LoginButton } from '@/components/auth/LoginButton';
 import { UserProfile } from '@/components/auth/UserProfile';
 import { CountrySelector } from '@/components/survey/CountrySelector';
 import { ProgressDashboard } from '@/components/dashboard/ProgressDashboard';
+import { ConsentForm } from '@/components/auth/ConsentForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
 export default function Home() {
-  const { user, loading, userProfile } = useAuth();
+  const { user, loading, userProfile, updateUserConsent } = useAuth();
   const [showCountrySelection, setShowCountrySelection] = useState(false);
+  const [showConsentForm, setShowConsentForm] = useState(false);
 
   useEffect(() => {
-    if (user && !userProfile?.selected_country) {
+    if (user && userProfile && userProfile.consent !== true) {
+      // Show consent form if user hasn't explicitly consented (consent is false, undefined, or null)
+      setShowConsentForm(true);
+    } else if (user && !userProfile?.selected_country) {
       setShowCountrySelection(true);
     } else {
       setShowCountrySelection(false);
+      setShowConsentForm(false);
     }
   }, [user, userProfile]);
+
+  const handleConsent = async (consent: boolean) => {
+    try {
+      await updateUserConsent(consent);
+      setShowConsentForm(false);
+      if (!userProfile?.selected_country) {
+        setShowCountrySelection(true);
+      }
+    } catch (error) {
+      console.error('Error updating consent:', error);
+    }
+  };
 
   if (loading) {
     return (
@@ -28,6 +46,10 @@ export default function Home() {
         <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-900 border-t-transparent"></div>
       </div>
     );
+  }
+
+  if (showConsentForm) {
+    return <ConsentForm onConsent={handleConsent} />;
   }
 
   return (
